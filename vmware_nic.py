@@ -36,3 +36,6 @@ def main():
 
 from ansible.module_utils.basic import *
 from ansible.module_utils.vmware import *
+
+if __name__ == '__main__':
+    main()
