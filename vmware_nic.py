@@ -28,6 +28,8 @@ def main():
     password = module.params.get('password')
     module.params['validate_certs'] = False
 
+    print module
+
     conn = connect_to_api(module)
 
     module.exit_json(changed=False)
