@@ -30,7 +30,7 @@ def main():
 
     conn = connect_to_api(module)
 
-    module.exit_json(msg=str(conn))
+    module.exit_json(changed=False)
 
 
 
