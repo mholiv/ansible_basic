@@ -28,7 +28,7 @@ def main():
     password = module.params.get('password')
     module.params['validate_certs'] = False
 
-    print(module)
+    print(module.params['validate_certs'])
 
     conn = connect_to_api(module)
 
