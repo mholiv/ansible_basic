@@ -26,7 +26,6 @@ def main():
     hostname = module.params.get('hostname')
     username = module.params.get('username')
     password = module.params.get('password')
-    vcerts = module.params.get('validate_certs')
 
     conn = connect_to_api(module)
 
