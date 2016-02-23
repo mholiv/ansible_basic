@@ -28,6 +28,10 @@ def main():
     password = module.params.get('password')
     vcerts = module.params.get('validate_certs')
 
+    conn = connect_to_api(module)
+
+    module.exit_json(msg=str(dir(conn)))
+
 
 
 from ansible.module_utils.basic import *
