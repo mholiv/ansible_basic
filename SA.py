@@ -76,6 +76,8 @@ def get_all_nics(vm_obj):
             print dir(device)
             print device.deviceInfo
             print device.backing
+            print device.resourceAllocation
+            print device.slotInfo
 
 
 
