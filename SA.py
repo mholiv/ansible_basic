@@ -23,7 +23,19 @@ datacenter = 'Lab'
 network_name =  'Servers'
 count = 2
 module = None
+dvs = False
 
+def get_obj_by_name(content, vimtype, name):
+    """
+     Get the vsphere object associated with a given text name
+    """    
+    obj = None
+    container = content.viewManager.CreateContainerView(content.rootFolder, vimtype, True)
+    for c in container.view:
+        if c.name == name:
+            obj = c
+            break
+    return obj
 
 def get_all_objs(content, vimtype):
 
@@ -117,6 +129,11 @@ def create_nic(module, desired_nic, label):
     nic_spec.fileOperation = "create"
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
     nic_spec.device = vim.vm.device.VirtualEthernetCard()
+    if dvs:
+        sys.exit('dvs not supported yet')
+    else:
+        nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+
 
     changes.append(nic_spec)
     vm_spec.deviceChange = dev_changes
@@ -146,6 +163,7 @@ def main():
 
     if state == 'update':
         print all_nics
+        print get_obj_by_name(conn, [vim.Network], network_name))
 
     else:
         print "Not here"
