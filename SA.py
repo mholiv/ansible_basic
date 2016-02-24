@@ -88,7 +88,7 @@ def get_vm_object(module, conn, path, datacenter):
             for vm_obj in matching_vms:
                 elements = []
                 print path_list
-                print objwalk(vm_obj, elements)
+                set(path_list).issubset(set(objwalk(vm_obj, elements)))
                 # if path_matches(vm_obj, path_list):
                 #     return vm_obj
         else:
