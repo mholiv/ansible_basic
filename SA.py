@@ -63,7 +63,8 @@ def get_nics(vm_obj):
             nics.append(dict(
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__.lower(),
-                key=device.key
+                key=device.key,
+                label=device.label
                 ))
 
     return nics
