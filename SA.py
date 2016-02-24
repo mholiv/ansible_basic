@@ -65,8 +65,7 @@ def get_vm_object(module, conn, path, datacenter):
         if label == name:
             matching_vms.append(vm_obj)
 
-    if len(matching_vms) > 1:
-        return name, path_list
+    return name, path_list, matching_vms
 
     if len(matching_vms < 1):
         sys.exit("No VM with the name %s could be found" % name)
