@@ -60,8 +60,9 @@ def objwalk(obj, ref='parent'):
     if hasattr(obj, ref):
         new_obj = getattr(obj, ref)
         if new_obj:
-            print new_obj.name
-            objwalk(new_obj, ref)
+            if new_obj.name != 'vm':
+                print new_obj.name
+                objwalk(new_obj, ref)
 
 
 def path_matches(vm_object, path):
