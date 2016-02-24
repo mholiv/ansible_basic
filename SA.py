@@ -134,7 +134,7 @@ def create_nic(module, conn, vm, desired_nic):
         sys.exit('dvs not supported yet')
     else:
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
-        nicspec.device.backing.network = get_obj(conn, [vim.Network], desired_nic['network'])
+        nicspec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
     
     nic_spec.device.wakeOnLanEnabled = True
     nic_spec.device.deviceInfo = vim.Description()
