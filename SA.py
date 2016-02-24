@@ -58,7 +58,7 @@ def connect_to_api(disconnect_atexit=True):
 def get_vm_object(module, conn, path, datacenter):
     all_vms = get_all_objs(conn, [vim.VirtualMachine])
     matching_vms = []
-    path_list = filter(None, vm_path.split('/'))
+    path_list = filter(None, path.split('/'))
     name = path_list.pop()
 
     for vm_obj, label in all_vms.iteritems():
