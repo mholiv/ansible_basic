@@ -60,6 +60,7 @@ def get_nics(vm_obj):
 
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
+            print device.backing
             nics.append(dict(
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__.lower(),
@@ -109,14 +110,36 @@ def get_vm_object(module, conn, path, datacenter):
         sys.exit("No matching VM found")
 
 def create_nic(module, desired_nic, label):
-    pass
+    vm_spec = vim.vm.ConfigSpec()
+    nic_spec = vim.vm.device.VirtualDeviceSpec()
+    changes = []
+
+    nic_spec.fileOperation = "create"
+    nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
+    nic_spec.device = vim.vm.device.VirtualEthernetCard()
+
+    changes.append(nic_spec)
+    vm_spec.deviceChange = dev_changes
+    vm.ReconfigVM_Task(spec=vm_spec)
+
 
 def main():
+    nic_type_map = dict(
+        vmxnet3 = 'vim.vm.device.VirtualVmxnet3',
+        vmxnet2 = 'vim.vm.device.VirtualVmxnet2',
+        vmxnet  = 'vim.vm.device.VirtualVmxnet',
+        e1000   = 'vim.vm.device.VirtualE1000',
+        e1000e  = 'vim.vm.device.VirtualE1000e',
+        pcnet32 = 'vim.vm.device.VirtualPCNet32'
+        )
+
     desired_nic = dict(
         network='Servers',
-        type='vim.vm.device.virtualvmxnet3'
+        type=nic_type_map[nic_type],
+        label='from script',
+        id=4000
         )
-    label = 'from script'
+    
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
