@@ -118,7 +118,7 @@ def main():
     label = 'from script'
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    all_nics = get_nics(vm_obj)
+    all_nics = get_nics(proper_vm)
 
     if state == 'update':
         print all_nics
