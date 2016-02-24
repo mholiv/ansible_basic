@@ -62,7 +62,8 @@ def objwalk(obj, ref='parent'):
         if new_obj:
             if new_obj.name != 'vm':
                 print new_obj.name
-                objwalk(new_obj, ref)
+            
+            objwalk(new_obj, ref)
 
 
 def path_matches(vm_object, path):
