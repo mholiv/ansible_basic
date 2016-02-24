@@ -64,7 +64,7 @@ def get_all_nics(vm_obj):
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__
                 ))
-
+    print nics
     return nics
 
 
@@ -115,6 +115,7 @@ def main():
         )
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
+    print desired_nic
     if desired_nic in get_all_nics(proper_vm):
         print "It's here"
     else:
