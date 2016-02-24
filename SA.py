@@ -57,7 +57,7 @@ def connect_to_api(disconnect_atexit=True):
 
 
 def objwalk(obj, ref='parent'):
-    if hasattr(obj, ref)
+    if hasattr(obj, ref):
         new_obj = getattr(obj, ref)
         print new_obj
         objwalk(new_obj, ref)
