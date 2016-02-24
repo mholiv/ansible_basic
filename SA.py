@@ -56,26 +56,13 @@ def connect_to_api(disconnect_atexit=True):
     return service_instance.RetrieveContent()
 
 
-def objwalk(obj, path=(), memo=None):
-    string_types = (str, unicode) if str is bytes else (str, bytes)
-    iteritems = lambda mapping: getattr(mapping, 'iteritems', mapping.items)()
+def objwalk(obj, ref='parent'):
+    if hasattr(obj, ref)
+        new_obj = getattr(obj, ref)
+        ref += '.parent'
+        print new_obj
+        objwalk(new_obj, ref)
 
-    if memo is None:
-        memo = set()
-    iterator = None
-    if isinstance(obj, Mapping):
-        iterator = iteritems
-    elif isinstance(obj, (Sequence, Set)) and not isinstance(obj, string_types):
-        iterator = enumerate
-    if iterator:
-        if id(obj) not in memo:
-            memo.add(id(obj))
-            for path_component, value in iterator(obj):
-                for result in objwalk(value, path + (path_component,), memo):
-                    yield result
-            memo.remove(id(obj))
-    else:
-        yield path, obj
 
 def path_matches(vm_object, path):
     pass
@@ -94,10 +81,7 @@ def get_vm_object(module, conn, path, datacenter):
     try:
         if len(matching_vms) > 1:
             for vm_obj in matching_vms:
-                ref = 'parent'
-                while True:
-                    print getattr(vm_obj, ref)
-                    ref += '.parent'
+                objwalk(vm_obj)
                 # if path_matches(vm_obj, path_list):
                 #     return vm_obj
         else:
