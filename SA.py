@@ -14,7 +14,7 @@ except ImportError:
 import sys
 
 path = '/JONS/megladon/DONT_MESS_WITH-1'
-state = 'present'
+state = 'update'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
 username = 'administrator'
