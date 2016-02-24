@@ -126,7 +126,7 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec = vim.vm.device.VirtualDeviceSpec()
     changes = []
 
-    nic_spec.fileOperation = "create"
+    # nic_spec.fileOperation = "create"
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
     nic_spec.device = getattr(vim.vm.device, 'VirtualVmxnet3')()
 
