@@ -55,22 +55,18 @@ def connect_to_api(disconnect_atexit=True):
         atexit.register(connect.Disconnect, service_instance)
     return service_instance.RetrieveContent()
 
-def get_nics(vm_obj, desired_nic):
+def get_nics(vm_obj):
     nics = []
-    matching_nics = []
 
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             nics.append(dict(
                 network=device.deviceInfo.summary,
-                type=device.__class__.__name__.lower()
+                type=device.__class__.__name__.lower(),
+                key=device.key
                 ))
 
-    for nic in nics:
-        if nic == desired_nic:
-            matching_nics.append(nic)
-
-    return nics, matching_nics
+    return nics
 
 
 def objwalk(obj, path_elements):
@@ -111,18 +107,22 @@ def get_vm_object(module, conn, path, datacenter):
     except TypeError:
         sys.exit("No matching VM found")
 
-
+def create_nic(module, desired_nic, label):
+    pass
 
 def main():
     desired_nic = dict(
         network='Servers',
         type='vim.vm.device.virtualvmxnet3'
         )
+    label = 'from script'
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    all_nics, matching_nics = get_nics(proper_vm, desired_nic)
-    if len(matching_nics) == count:
-        print "It's here"
+    all_nics = get_nics(vm_obj)
+
+    if state == 'update':
+        print all_nics
+
     else:
         print "Not here"
 

@@ -23,14 +23,14 @@ def get_vm_object(module, conn, path, datacenter):
 
 def get_matching_nics():
     pass
-    
+
 def main():
 
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         dict(
                 vm_path=dict(required=True, type='str'),
-                state=dict(required=True, choices=['present', 'absent'], type='str'),
+                state=dict(required=True, choices=['create', 'absent', 'update'], type='str'),
                 type=dict(required=True, type='str'),
                 network_name=dict(required=True, type='str'),
                 datacenter=dict(required=True, type='str'),
