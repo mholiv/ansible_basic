@@ -55,35 +55,19 @@ def connect_to_api(disconnect_atexit=True):
         atexit.register(connect.Disconnect, service_instance)
     return service_instance.RetrieveContent()
 
-
-def objwalk(obj, path_elements):
-    if hasattr(obj, 'parent'):
-        new_obj = getattr(obj, 'parent')
-        if new_obj:
-            if new_obj.name != 'vm':
-                path_elements.append(new_obj.name)
-            
-            objwalk(new_obj, path_elements)
-
-    return path_elements
-
-
 def get_all_nics(vm_obj):
     nics = []
 
-    for device in vm_obj.properties.config.hardware.device:
+    for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
-            print dir(device)
+            nicspec = vim.vm.device.VirtualDeviceSpec()
+            nics.append(dict(
+                label=device.deviceInfo.label,
+                network=device.deviceInfo.summary,
+                type=device.__class__.__name__
+                ))
 
-    # for device in vm_obj.config.hardware.device:
-    #     if isinstance(device, vim.vm.device.VirtualEthernetCard):
-    #         nicspec = vim.vm.device.VirtualDeviceSpec()
-    #         print dir(device)
-    #         print device.deviceInfo
-    #         print device.backing
-    #         print device.slotInfo
-    #         print device.__class__.__name__
-    #         print type(device)
+    print nics
 
 
 def objwalk(obj, path_elements):
