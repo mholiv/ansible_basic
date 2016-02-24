@@ -62,7 +62,7 @@ def get_all_nics(vm_obj):
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             nics.append(dict(
                 network=device.deviceInfo.summary,
-                type=device.__class__.__name__
+                type=device.__class__.__name__.lower()
                 ))
     print nics
     return nics
