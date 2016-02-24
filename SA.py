@@ -60,14 +60,12 @@ def get_all_nics(vm_obj):
 
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
-            nicspec = vim.vm.device.VirtualDeviceSpec()
             nics.append(dict(
-                label=device.deviceInfo.label,
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__
                 ))
 
-    print nics
+    return nics
 
 
 def objwalk(obj, path_elements):
@@ -111,8 +109,15 @@ def get_vm_object(module, conn, path, datacenter):
 
 
 def main():
+    desired_nic = dict(
+        network='Servers',
+        type='vim.vm.device.virtualvmxnet3'
+        )
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    nics = get_all_nics(proper_vm)
+    if desired_nic in get_all_nics(proper_vm):
+        print "It's here"
+    else:
+        print "Not here"
 
 main()
