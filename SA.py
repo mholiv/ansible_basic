@@ -70,15 +70,20 @@ def objwalk(obj, path_elements):
 
 def get_all_nics(vm_obj):
     nics = []
-    for device in vm_obj.config.hardware.device:
+
+    for device in vm_obj.properties.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
-            nicspec = vim.vm.device.VirtualDeviceSpec()
             print dir(device)
-            print device.deviceInfo
-            print device.backing
-            print device.slotInfo
-            print device.__class__.__name__
-            print type(device)
+
+    # for device in vm_obj.config.hardware.device:
+    #     if isinstance(device, vim.vm.device.VirtualEthernetCard):
+    #         nicspec = vim.vm.device.VirtualDeviceSpec()
+    #         print dir(device)
+    #         print device.deviceInfo
+    #         print device.backing
+    #         print device.slotInfo
+    #         print device.__class__.__name__
+    #         print type(device)
 
 
 def objwalk(obj, path_elements):
