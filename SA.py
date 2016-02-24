@@ -55,8 +55,9 @@ def connect_to_api(disconnect_atexit=True):
         atexit.register(connect.Disconnect, service_instance)
     return service_instance.RetrieveContent()
 
-def get_all_nics(vm_obj):
+def get_all_nics(vm_obj, desired_nic):
     nics = []
+    matching_nics = []
 
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
@@ -64,7 +65,12 @@ def get_all_nics(vm_obj):
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__.lower()
                 ))
-    return nics
+
+    for nic in nics:
+        if nic == desired_nic:
+            matching_nics.append(nic)
+            
+    return nics, matching_nics
 
 
 def objwalk(obj, path_elements):
@@ -114,8 +120,8 @@ def main():
         )
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    nics = get_all_nics(proper_vm)
-    if desired_nic in nics and nics.count(desired_nic) == count:
+    all_nics, matching_nics = get_nics(proper_vm, desired_nic)
+    if len(matching_nics) > 0 and nics.count(desired_nic) == count:
         print "It's here"
     else:
         print "Not here"
