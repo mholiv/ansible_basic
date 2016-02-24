@@ -21,7 +21,7 @@ username = 'administrator'
 password = 'VMware1#'
 datacenter = 'Lab'
 network_name =  'Servers'
-count = 1
+count = 2
 module = None
 
 
@@ -115,8 +115,6 @@ def main():
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
     nics = get_all_nics(proper_vm)
-    print nics
-    print nics.count(desired_nic)
     if desired_nic in nics and nics.count(desired_nic) == count:
         print "It's here"
     else:
