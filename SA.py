@@ -75,6 +75,9 @@ def get_all_nics(vm_obj):
             nicspec = vim.vm.device.VirtualDeviceSpec()
             print dir(device)
             print device.deviceInfo
+            print device.dynamicProperty.name
+            print device.dynamicProperty.value
+
 
 
 def get_vm_object(module, conn, path, datacenter):
