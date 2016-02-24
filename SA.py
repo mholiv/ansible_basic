@@ -58,6 +58,7 @@ def connect_to_api(disconnect_atexit=True):
 def get_vm_object(module, conn, path, datacenter):
     all_vms = get_all_objs(conn, [vim.VirtualMachine])
     matching_vms = []
+    name = path_list.pop()
 
     for vm_obj, label in all_vms.iteritems():
         if label == name:
@@ -65,7 +66,6 @@ def get_vm_object(module, conn, path, datacenter):
 
     if len(matching_vms) > 1:
         path_list = filter(None, vm_path.split('/'))
-        name = path_list.pop()
         return name, path_list
 
     if len(matching_vms < 1):
