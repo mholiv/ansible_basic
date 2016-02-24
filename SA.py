@@ -12,7 +12,7 @@ except ImportError:
 
 import sys
 
-path = '/JONS/clonedVM'
+path = '/JONS/megladon/DONT_MESS_WITH-1'
 state = 'present'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
