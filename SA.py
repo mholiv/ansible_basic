@@ -78,7 +78,7 @@ def get_all_nics(vm_obj):
             print device.backing
             print device.slotInfo
             print device.__class__.__name__
-            print device._type
+            print type(device)
 
 
 def objwalk(obj, path_elements):
