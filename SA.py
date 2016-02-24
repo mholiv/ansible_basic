@@ -76,13 +76,26 @@ def get_all_nics(vm_obj):
             print dir(device)
             print device.deviceInfo
             print device.backing
-            print device.resourceAllocation
             print device.slotInfo
             print device.__class__.__name__
+            print device.dynamicType
 
+
+def objwalk(obj, path_elements):
+    if hasattr(obj, 'parent'):
+        new_obj = getattr(obj, 'parent')
+        if new_obj:
+            if new_obj.name != 'vm':
+                # 'vm' is an invisible folder that exists at the datacenter root so we ignore it
+                path_elements.append(new_obj.name)
+            
+            objwalk(new_obj, path_elements)
+
+    return path_elements
 
 
 def get_vm_object(module, conn, path, datacenter):
+
     all_vms = get_all_objs(conn, [vim.VirtualMachine])
     matching_vms = []
     path_list = filter(None, path.split('/'))
