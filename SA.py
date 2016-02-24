@@ -94,8 +94,10 @@ def get_vm_object(module, conn, path, datacenter):
     try:
         if len(matching_vms) > 1:
             for vm_obj in matching_vms:
-                for thing in objwalk(vm_obj.parent):
-                    print thing
+                ref = 'parent'
+                while True:
+                    print getattr(vm_obj, ref)
+                    ref += '.parent'
                 # if path_matches(vm_obj, path_list):
                 #     return vm_obj
         else:
