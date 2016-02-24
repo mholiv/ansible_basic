@@ -56,14 +56,16 @@ def connect_to_api(disconnect_atexit=True):
     return service_instance.RetrieveContent()
 
 
-def objwalk(obj, ref='parent'):
+def objwalk(obj, path_elements, ref='parent'):
     if hasattr(obj, ref):
         new_obj = getattr(obj, ref)
         if new_obj:
             if new_obj.name != 'vm':
-                print new_obj.name
+                path_elements.append(new_obj.name)
             
             objwalk(new_obj, ref)
+
+    return path_elements
 
 
 def path_matches(vm_object, path):
@@ -82,9 +84,10 @@ def get_vm_object(module, conn, path, datacenter):
 
     try:
         if len(matching_vms) > 1:
+            path_elements = []
             for vm_obj in matching_vms:
                 print 'path is:', path
-                objwalk(vm_obj)
+                print objwalk(vm_obj, path_elements)
                 # if path_matches(vm_obj, path_list):
                 #     return vm_obj
         else:
