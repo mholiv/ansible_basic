@@ -14,7 +14,7 @@ except ImportError:
 import sys
 
 path = '/JONS/megladon/DONT_MESS_WITH-1'
-state = 'update'
+state = 'present'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
 username = 'administrator'
@@ -121,7 +121,7 @@ def get_vm_object(module, conn, path, datacenter):
     except TypeError:
         sys.exit("No matching VM found")
 
-def create_nic(module, desired_nic, label):
+def create_nic(module, conn, vm, desired_nic):
     vm_spec = vim.vm.ConfigSpec()
     nic_spec = vim.vm.device.VirtualDeviceSpec()
     changes = []
@@ -129,15 +129,30 @@ def create_nic(module, desired_nic, label):
     nic_spec.fileOperation = "create"
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
     nic_spec.device = vim.vm.device.VirtualEthernetCard()
+
     if dvs:
         sys.exit('dvs not supported yet')
     else:
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
-
+        nicspec.device.backing.network = get_obj(conn, [vim.Network], desired_nic['network'])
+    
+    nic_spec.device.wakeOnLanEnabled = True
+    nic_spec.device.deviceInfo = vim.Description()
+    nic_spec.device.deviceInfo.label = desired_nic['label']
+    nic_spec.device.deviceInfo.summary = desired_nic['network']     
+    nic_spec.device.backing.deviceName = desired_nic['network']
+    nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    nic_spec.device.connectable.startConnected = True
+    nic_spec.device.connectable.allowGuestControl = True
+    nic_spec.device.addressType = 'generated'
+    nic_spec.device.key = desired_nic['id']
 
     changes.append(nic_spec)
     vm_spec.deviceChange = dev_changes
     vm.ReconfigVM_Task(spec=vm_spec)
+
+    return desired_nic
+
 
 
 def main():
@@ -154,16 +169,16 @@ def main():
         network='Servers',
         type=nic_type_map[nic_type],
         label='from script',
-        id=4000
+        id=4010
         )
     
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
 
-    if state == 'update':
-        print all_nics
-        print get_obj_by_name(conn, [vim.Network], network_name)
+    if state == 'present':
+        print create_nic(module, conn, proper_vm, desired_nic)
+        
 
     else:
         print "Not here"
