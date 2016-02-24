@@ -57,7 +57,7 @@ def connect_to_api(disconnect_atexit=True):
 
 
 def objwalk(obj, path_elements):
-    if hasattr(obj, ref):
+    if hasattr(obj, 'parent'):
         new_obj = getattr(obj, 'parent')
         if new_obj:
             if new_obj.name != 'vm':
