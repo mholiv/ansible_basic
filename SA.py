@@ -64,7 +64,7 @@ def get_nics(vm_obj):
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__.lower(),
                 key=device.key,
-                label=device.label
+                label=device.Label
                 ))
 
     return nics
