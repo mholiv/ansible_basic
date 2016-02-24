@@ -98,7 +98,7 @@ def get_vm_object(module, conn, path, datacenter):
 def main():
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    print proper_vm
+    print 'proper vm: ',proper_vm
 
 
 main()
