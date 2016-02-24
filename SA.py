@@ -68,8 +68,12 @@ def objwalk(obj, path_elements):
     return path_elements
 
 
-def path_matches(vm_object, path):
-    pass
+def get_all_nics(vm_obj):
+    nics = []
+    for devices in vm_obj:
+        if isinstance(device, vim.vm.device.VirtualEthernetCard):
+            nicspec = vim.vm.device.VirtualDeviceSpec()
+            print nicspec
 
 
 def get_vm_object(module, conn, path, datacenter):
@@ -101,7 +105,6 @@ def get_vm_object(module, conn, path, datacenter):
 def main():
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    print 'proper vm: ',proper_vm
-
+    nics = get_all_nics(proper_vm)
 
 main()
