@@ -138,14 +138,14 @@ def create_nic(module, conn, vm, desired_nic):
     
     nic_spec.device.wakeOnLanEnabled = True
     nic_spec.device.deviceInfo = vim.Description()
-    nic_spec.device.deviceInfo.label = desired_nic['label']
+    # nic_spec.device.deviceInfo.label = desired_nic['label']
     nic_spec.device.deviceInfo.summary = desired_nic['network']     
     nic_spec.device.backing.deviceName = desired_nic['network']
     nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
     nic_spec.device.connectable.startConnected = True
     nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.addressType = 'generated'
-    nic_spec.device.key = desired_nic['id']
+    # nic_spec.device.key = desired_nic['id']
 
     changes.append(nic_spec)
     vm_spec.deviceChange = changes
