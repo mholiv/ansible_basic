@@ -148,7 +148,7 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec.device.key = desired_nic['id']
 
     changes.append(nic_spec)
-    vm_spec.deviceChange = dev_changes
+    vm_spec.deviceChange = changes
     vm.ReconfigVM_Task(spec=vm_spec)
 
     return desired_nic
