@@ -12,7 +12,7 @@ except ImportError:
 
 import sys
 
-vm_path = '/JONS/clonedVM'
+path = '/JONS/clonedVM'
 state = 'present'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
