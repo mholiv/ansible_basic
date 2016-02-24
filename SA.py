@@ -163,7 +163,7 @@ def main():
 
     if state == 'update':
         print all_nics
-        print get_obj_by_name(conn, [vim.Network], network_name))
+        print get_obj_by_name(conn, [vim.Network], network_name)
 
     else:
         print "Not here"
