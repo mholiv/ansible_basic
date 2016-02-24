@@ -56,14 +56,14 @@ def connect_to_api(disconnect_atexit=True):
     return service_instance.RetrieveContent()
 
 
-def objwalk(obj, path_elements, ref='parent'):
+def objwalk(obj, path_elements):
     if hasattr(obj, ref):
-        new_obj = getattr(obj, ref)
+        new_obj = getattr(obj, 'parent')
         if new_obj:
             if new_obj.name != 'vm':
                 path_elements.append(new_obj.name)
             
-            objwalk(new_obj, ref)
+            objwalk(new_obj, path_elements)
 
     return path_elements
 
