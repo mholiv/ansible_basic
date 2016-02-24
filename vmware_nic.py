@@ -6,14 +6,35 @@ try:
 except ImportError:
     HAS_PYVMOMI = False
 
+def get_vm_object(module, conn, path, datacenter):
+    all_vms = get_all_objs(conn, [vim.VirtualMachine])
+    matching_vms = []
 
+    for vm_obj, label in all_vms.iteritems():
+        if label == name:
+            matching_vms.append(vm_obj)
+
+    if len(matching_vms) > 1:
+        path_list = filter(None, vm_path.split('/'))
+        name = path_list.pop()
+
+    if len(matching_vms < 1):
+        module.fail_json(msg="No VM with the name %s could be found" % name)
+
+def get_matching_nics():
+    pass
+    
 def main():
 
     argument_spec = vmware_argument_spec()
     argument_spec.update(
         dict(
-                vm_name=dict(required=True, type='str'),
+                vm_path=dict(required=True, type='str'),
                 state=dict(required=True, choices=['present', 'absent'], type='str'),
+                type=dict(required=True, type='str'),
+                network_name=dict(required=True, type='str'),
+                datacenter=dict(required=True, type='str'),
+                count=dict(required=False, type='int', default=1))
                 )
         )
     module = AnsibleModule(argument_spec=argument_spec)
