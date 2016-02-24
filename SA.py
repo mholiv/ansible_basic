@@ -73,7 +73,7 @@ def get_all_nics(vm_obj):
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
             nicspec = vim.vm.device.VirtualDeviceSpec()
-            print nicspec
+            print dir(device)
 
 
 def get_vm_object(module, conn, path, datacenter):
