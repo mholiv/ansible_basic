@@ -128,7 +128,7 @@ def create_nic(module, conn, vm, desired_nic):
 
     nic_spec.fileOperation = "create"
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
-    nic_spec.device = getattr(vim.vm.device, 'VirtualVmxnet3')
+    nic_spec.device = getattr(vim.vm.device, 'VirtualVmxnet3')()
 
     if dvs:
         sys.exit('dvs not supported yet')
