@@ -55,7 +55,7 @@ def connect_to_api(disconnect_atexit=True):
         atexit.register(connect.Disconnect, service_instance)
     return service_instance.RetrieveContent()
 
-def get_all_nics(vm_obj, desired_nic):
+def get_nics(vm_obj, desired_nic):
     nics = []
     matching_nics = []
 
@@ -69,7 +69,7 @@ def get_all_nics(vm_obj, desired_nic):
     for nic in nics:
         if nic == desired_nic:
             matching_nics.append(nic)
-            
+
     return nics, matching_nics
 
 
