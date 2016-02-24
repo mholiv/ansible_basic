@@ -115,8 +115,9 @@ def main():
         )
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
-    print desired_nic
-    if desired_nic in get_all_nics(proper_vm):
+    nics = get_all_nics(proper_vm)
+
+    if desired_nic in nics and nics.count(desired_nic) == count:
         print "It's here"
     else:
         print "Not here"
