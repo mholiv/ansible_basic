@@ -59,8 +59,9 @@ def connect_to_api(disconnect_atexit=True):
 def objwalk(obj, ref='parent'):
     if hasattr(obj, ref):
         new_obj = getattr(obj, ref)
-        print new_obj.name
-        objwalk(new_obj, ref)
+        if new_obj:
+            print new_obj.name
+            objwalk(new_obj, ref)
 
 
 def path_matches(vm_object, path):
