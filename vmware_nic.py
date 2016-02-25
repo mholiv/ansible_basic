@@ -279,7 +279,7 @@ def main():
         results = create_nic(module, conn, proper_vm, desired_nic)
         new_nics_list = [nic['nic_obj'] for nic in get_nics(proper_vm)]
         new_nic = set(new_nics_list).difference(pre_nics)
-        nic = new_nic[0]
+        nic = new_nic.pop()
         module.exit_json(changed=changed, new_nic=nic.deviceInfo.label)
     
     elif state == 'absent':
