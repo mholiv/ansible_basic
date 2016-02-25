@@ -320,9 +320,9 @@ def main():
         )
     
     module = AnsibleModule(argument_spec=argument_spec,
-			required_if= ('state','create',['network_name']),
-			required_if= ('state','update',['network_name','label']),
-			required_if= ('state','absent',['label'])
+			required_if= [('state','create',['network_name']),
+			              ('state','update',['network_name','label']),
+			              ('state','absent',['label'])]
 			)
 
     if not HAS_PYVMOMI:
