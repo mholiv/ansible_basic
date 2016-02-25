@@ -51,6 +51,9 @@ def get_vm_object(module, conn, path, datacenter):
                 if set(path_list).issubset(set(objwalk(vm_obj, elements))):
                     return vm_obj
 
+        elif len(matching_vms) == 0:
+            module.fail_json(msg="VM: %s not found at path: %s" % (name, path))
+        
         else:
             return matching_vms[0]
 
@@ -123,11 +126,18 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
     nic_obj = None
 
     for nic in all_nics:
-        if nic['key'] == desired_nic['key']:
-            nic_obj = nic['nic_obj']
+        matching_nics = []
+        if nic['deviceInfo']['label'] == desired_nic['label']:
+            matching_nics.append(nic['nic_obj'])
 
-    if not nic_obj:
-        module.exit_json(changed=False, msg='Nic Absent')
+    if len(matching_nics) == 1:
+        nic_obj = matching_nics[0]
+    elif len(matching_nics) > 1:
+        module.fail_json(msg="One or more NICs with the label: %s have been found. You'll have to remove the proper NIC manually" % desired_nic['label'])
+    elif len(matching_nics) == 0:
+        module.exit_json(msg="No NIC with the name: %s was found" % desired_nic['label'])
+    
+    nic_obj = matching_nics[0]
 
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.remove
     nic_spec.device = nic_obj
@@ -149,11 +159,18 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
     nic_obj = None
 
     for nic in all_nics:
-        if nic['key'] == desired_nic['key']:
-            nic_obj = nic['nic_obj']
+        matching_nics = []
+        if nic['deviceInfo']['label'] == desired_nic['label']:
+            matching_nics.append(nic['nic_obj'])
 
-    if not nic_obj:
-        module.fail_json("Nic with key: %s not found" % desired_nic['key'])
+    if len(matching_nics) == 1:
+        nic_obj = matching_nics[0]
+    elif len(matching_nics) > 1:
+        module.fail_json(msg="One or more NICs with the label: %s have been found. You'll have to update the proper NIC manually. Or ensure the NICs have unique labels and try again." % desired_nic['label'])
+    elif len(matching_nics) == 0:
+        module.fail_json(msg="No NIC with the name: %s was found" % desired_nic['label'])
+
+    nic_obj = matching_nics[0]
 
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
     nic_spec.device = nic_obj
@@ -212,7 +229,7 @@ def main():
     argument_spec.update(
         dict(
                 vm_path=dict(required=True, type='str'),
-                key=dict(required=False, type='int', default=None),
+                label=dict(required=False, type='str'),
                 dvs=dict(required=False, type='bool', default=False),
                 state=dict(required=True, choices=['create', 'absent', 'update'], type='str'),
                 type=dict(required=True, type='str', choices=['vmxnet','vmxnet2','vmxnet3','e1000','e1000e','pcnet32']),
@@ -227,13 +244,15 @@ def main():
         module.fail_json(msg='pyvmomi is required for this module')
 
     path = module.params.get('vm_path')
-    key = module.params.get('key')
+    label = module.params.get('label')
     dvs = module.params.get('dvs')
     network_name = module.params.get('network_name')
     datacenter = module.params.get('datacenter')
     state = module.params.get('state')
     nic_type = module.params.get('type')
+
     changed = False
+
     conn = connect_to_api(module)
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
@@ -251,7 +270,7 @@ def main():
         network=network_name,
         type=nic_type_map[nic_type],
         dvs=dvs,
-        key=key
+        label=label
         )
 
     if state == 'create':
