@@ -207,7 +207,7 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
         module.fail_json(msg="Failed to update nic: %s" % result)
 
 
-def needs_update(desired_nic, all_nics):
+def needs_update(module, desired_nic, all_nics):
     nic_obj = None
 
     for nic in all_nics:
@@ -305,7 +305,7 @@ def main():
         results = remove_nic(module, conn, proper_vm, desired_nic, all_nics)
     
     elif state == 'update':
-        if needs_update(desired_nic, all_nics):
+        if needs_update(module, desired_nic, all_nics):
             changed=True
             results = update_nic(module, conn, proper_vm, desired_nic, all_nics)
 
