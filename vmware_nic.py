@@ -274,7 +274,7 @@ def main():
     conn = connect_to_api(module)
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
-    print 'allnics ', all_nics
+    module.fail_json(msg='allnics %s' % all_nics)
 
     nic_type_map = dict(
         vmxnet3 = 'VirtualVmxnet3',
