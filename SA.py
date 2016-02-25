@@ -177,7 +177,8 @@ def main():
     all_nics = get_nics(proper_vm)
 
     if state == 'present':
-        print create_nic(module, conn, proper_vm, desired_nic)
+        print all_nics
+        #print create_nic(module, conn, proper_vm, desired_nic)
         
 
     else:
