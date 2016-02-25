@@ -144,7 +144,7 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
     nic_obj = None
 
     for nic in all_nics:
-        if nic['id'] == desired_nic['id']:
+        if nic['key'] == desired_nic['key']:
             nic_obj = nic['nic_obj']
 
     if not nic_obj:
@@ -221,7 +221,7 @@ def main():
         network='Servers',
         type=nic_type_map[nic_type],
         dvs=False,
-        id=4002
+        key=4002
         )
     
     conn = connect_to_api()
