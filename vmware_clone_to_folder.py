@@ -1,12 +1,4 @@
 #!/usr/bin/python
-import ssl
-
-try:
-    from pyVmomi import vim, vmodl
-    HAS_PYVMOMI = True
-except ImportError:
-    HAS_PYVMOMI = False
-
 
 DOCUMENTATION = '''
 ---
@@ -19,8 +11,6 @@ options:
     description:
       - The hostname of the vcenter server the module will connect to.
     required: true
-    default: null
-    aliases: []
   validate_certs:
     description:
       - Validate SSL certs.  Note, if running on python without SSLContext
@@ -31,17 +21,14 @@ options:
     required: false
     default: yes
     choices: ['yes', 'no']
-    version_added: 2.1
   username:
     description:
       - Username to connect to vcenter as.
     required: true
-    default: null
   password:
     description:
       - Password of the user to connect to vcenter as.
     required: true
-    default: null
   resource_pool:
     description:
       - The name of the resource_pool to create the VM in.
@@ -51,12 +38,10 @@ options:
     description:
       - The file path to the template.
     required: True
-    default: None
   destination:
     description:
       - The file path to place the VM.
     required: True
-    default: None
   port:
     description:
       - The port to connect to vSphere on.
@@ -69,7 +54,7 @@ notes:
 author: "Caitlin Campbell <cacampbe@redhat.com>"
 requirements:
   - "python >= 2.6"
-  - pysphere
+  - pyVmomi
 '''
 
 
@@ -82,6 +67,17 @@ EXAMPLES = '''
     template_location: /templates/clienta/template436
     destination: /clients/clienta/clientaVM
 '''
+
+
+import ssl
+
+try:
+    from pyVmomi import vim, vmodl
+    HAS_PYVMOMI = True
+except ImportError:
+    HAS_PYVMOMI = False
+
+
 
 def connect_to_api_custom(module, disconnect_atexit=True):
 
@@ -114,7 +110,7 @@ def connect_to_api_custom(module, disconnect_atexit=True):
 
 
 
-def find_resource_pool(si,name):
+def find_resource_pool(si, name):
     """
     Find a resource pool by it's name and return it
     """
@@ -128,7 +124,7 @@ def find_resource_pool(si,name):
             return rp
     return None
 
-def vm_clone_handler(module,si,vm_name,path_list,template_vm,resource_pool_name,conn):
+def vm_clone_handler(module, si, vm_name, path_list, template_vm, resource_pool_name, conn):
     """
     Will handle the thread handling to clone a virtual machine and run post processing
     """
@@ -265,11 +261,9 @@ def get_folder_object(conn, path_list):
                 return matching_vms[0]
 
     except TypeError:
-        sys.exit("No matching folder found")
+        module.fail_json(msg='CFolder %s notfound .' % str(path_list))
 
 def main():
-
-    vm = None
 
     argument_spec = vmware_argument_spec()
 
