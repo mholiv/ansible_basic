@@ -228,12 +228,12 @@ def needs_update(desired_nic, all_nics):
             if 'Distrubted' in nic_obj.backing.__class__.__name__:
                 return False
             else:
-                continue
+                pass
         else:
             if 'Network' in nic_obj.backing.__class__.__name__:
                 return False
             else:
-                continue
+                pass
 
     return True
 
