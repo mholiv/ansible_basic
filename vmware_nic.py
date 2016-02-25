@@ -124,9 +124,9 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
     nic_spec = vim.vm.device.VirtualDeviceSpec()
     changes = []
     nic_obj = None
+    matching_nics = []
 
     for nic in all_nics:
-        matching_nics = []
         if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
 
@@ -157,9 +157,9 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
     nic_spec = vim.vm.device.VirtualDeviceSpec()
     changes = []
     nic_obj = None
+    matching_nics = []
 
     for nic in all_nics:
-        matching_nics = []
         if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
 
@@ -209,16 +209,14 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
 
 def needs_update(module, desired_nic, all_nics):
     nic_obj = None
-    module.fail_json(msg='allnics %s' % all_nics)
+    all_nic_labels = []
+    matching_nics = []
 
     for nic in all_nics:
-        matching_nics = []
-        all_nic_labels = []
+        all_nic_labels.append(nic['nic_obj'].deviceInfo.label)
 
         if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
-
-        all_nic_labels.append(nic['nic_obj'].deviceInfo.label)
 
     if len(matching_nics) == 1:
         nic_obj = matching_nics[0]
