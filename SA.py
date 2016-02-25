@@ -14,7 +14,7 @@ except ImportError:
 import sys
 
 path = '/JONS/megladon/DONT_MESS_WITH-1'
-state = 'absent'
+state = 'update'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
 username = 'administrator'
@@ -137,6 +137,56 @@ def get_vm_object(module, conn, path, datacenter):
         sys.exit("No matching VM found")
 
 
+def update_nic(module, conn, vm, desired_nic, all_nics):
+    vm_spec = vim.vm.ConfigSpec()
+    nic_spec = vim.vm.device.VirtualDeviceSpec()
+    changes = []
+    nic_obj = None
+
+    for nic in all_nics:
+        if nic['key'] == desired_nic['key']:
+            nic_obj = nic['nic_obj']
+
+    if not nic_obj:
+        sys.exit("Nic with id not found")
+
+    nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.edit
+    nic_spec.device = nic_obj
+    nic_spec.device.key = nic_obj.key
+    nic_spec.device.macAddress = nic_obj.macAddress
+
+    if desired_nic['dvs']:
+        pg_obj = get_obj(content, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
+        dvs_port_connection = vim.dvs.PortConnection()
+        dvs_port_connection.portgroupKey= pg_obj.key
+        dvs_port_connection.switchUuid= pg_obj.config.distributedVirtualSwitch.uuid
+        nicspec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
+        nicspec.device.backing.port = dvs_port_connection
+    else:
+        nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+        nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
+    
+    nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    nic_spec.device.connectable.startConnected = True
+    nic_spec.device.connectable.allowGuestControl = True
+    nic_spec.device.wakeOnLanEnabled = True
+    nic_spec.device.deviceInfo = vim.Description()
+    nic_spec.device.deviceInfo.summary = desired_nic['network']     
+    nic_spec.device.backing.deviceName = desired_nic['network']
+
+    changes.append(nic_spec)
+    spec = vim.vm.ConfigSpec()
+    spec.deviceChange = changes
+    task = vm.ReconfigVM_Task(spec=spec)
+    success, result = wait_for_task(task)
+
+    if success:
+        return desired_nic
+    else:
+        sys.exit('failure')
+
+
+
 def remove_nic(module, conn, vm, desired_nic, all_nics):
     vm_spec = vim.vm.ConfigSpec()
     nic_spec = vim.vm.device.VirtualDeviceSpec()
@@ -157,6 +207,7 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
     spec.deviceChange = changes
     task = vm.ReconfigVM_Task(spec=spec)
     success, result = wait_for_task(task)
+
 
     if success:
         return desired_nic
@@ -182,13 +233,13 @@ def create_nic(module, conn, vm, desired_nic):
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
     
+    nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    nic_spec.device.connectable.startConnected = True
+    nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.wakeOnLanEnabled = True
     nic_spec.device.deviceInfo = vim.Description()
     nic_spec.device.deviceInfo.summary = desired_nic['network']     
     nic_spec.device.backing.deviceName = desired_nic['network']
-    nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
-    nic_spec.device.connectable.startConnected = True
-    nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.addressType = 'generated'
     # The two below do not work, label and key, they are ignored by the API
     # nic_spec.device.deviceInfo.label = desired_nic['label']
@@ -218,10 +269,10 @@ def main():
         )
 
     desired_nic = dict(
-        network='Servers',
+        network='VM Network',
         type=nic_type_map[nic_type],
         dvs=False,
-        key=4003
+        key=4000
         )
     
     conn = connect_to_api()
@@ -232,6 +283,8 @@ def main():
         print create_nic(module, conn, proper_vm, desired_nic)
     elif state == 'absent':
         print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
+    elif state == 'update':
+        print update_nic(module, conn, proper_vm, desired_nic, all_nics)
         
 
     else:
