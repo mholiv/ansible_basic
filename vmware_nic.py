@@ -280,7 +280,11 @@ def main():
         new_nics_list = [nic['nic_obj'] for nic in get_nics(proper_vm)]
         new_nic = set(new_nics_list).difference(pre_nics)
         nic = new_nic.pop()
-        module.exit_json(changed=changed, new_nic=nic.deviceInfo.label)
+        module.exit_json(changed=changed, nic=dict(label=nic.deviceInfo.label,
+                                                   key=nic.key,
+                                                   network=nic.backing.deviceName
+                                                   )
+        )
     
     elif state == 'absent':
         changed = True
@@ -291,7 +295,7 @@ def main():
             changed=True
             results = update_nic(module, conn, proper_vm, desired_nic, all_nics)
 
-    module.exit_json(changed=changed, **results)
+    module.exit_json(changed=changed, nic=desired_nic)
 
 
 
