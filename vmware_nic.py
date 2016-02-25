@@ -1,5 +1,67 @@
 #!/bin/python
 
+DOCUMENTATION = '''
+---
+module: vmware_nic
+short_description: Create, Update, or Remove a NIC from a VM
+description:
+     - Allows non-idempotent creation of VMs. Updates and removals are idempotent.
+options:
+  vm_path:
+    description:
+      - The fully qualified path of the VM such as /SomeFolder/SubFolder/VMname
+    required: true
+  label:
+    description:
+      - The label of the NIC you want to update or remove. This has no effect when trying to
+        create a NIC due to a limitation in VMWare's API 
+    required: false
+  dvs:
+    description:
+      - Whether the NICs network should be standard or DVS. 
+    default: false 
+  state:
+    description:
+      - The action desired. If 'create', a new NIC will be created everytime. Update will check
+        if a NIC with the same label exists, if it does then it will verify that the current network
+        matches the settings supplied in the task.
+    required: True
+  type:
+    description:
+      - The type of NIC you wish to create 
+    required: false
+    default: vmxnet3 
+    choices: ['vmxnet','vmxnet2','vmxnet3','e1000','e1000e','pcnet32']
+  network_name:
+    description:
+      - The name label of the network you wish to associate the NIC with. 
+        Valid for create and update states.
+    required: False
+  datacenter:
+    description:
+      - The datacenter name in which the VM resides
+    required: True 
+notes:
+  - This module should run from a system that can access vSphere directly.
+    Either by using local_action, or using delegate_to. 
+author: "Jonathan Davila <jdavila@redhat.com>"
+requirements:
+  - "python >= 2.6"
+  - pyvmomi
+'''
+
+
+EXAMPLES = '''
+# Clone an existing template or VM into a specified folder.
+- vvmware_clone_to_folder:
+    hostname: vcenter.mydomain.local
+    username: myuser
+    password: mypass
+    template_location: /templates/clienta/template436
+    destination: /clients/clienta/clientaVM
+'''
+
+
 try:
     from pyVmomi import vim
     HAS_PYVMOMI = True
@@ -75,6 +137,7 @@ def get_nics(vm_obj):
                 ))
 
     return nics
+
 
 def create_nic(module, conn, vm, desired_nic):
     vm_spec = vim.vm.ConfigSpec()
@@ -240,6 +303,7 @@ def needs_update(module, desired_nic, all_nics):
 
     return True
 
+
 def main():
 
     argument_spec = vmware_argument_spec()
@@ -249,13 +313,17 @@ def main():
                 label=dict(required=False, type='str'),
                 dvs=dict(required=False, type='bool', default=False),
                 state=dict(required=True, choices=['create', 'absent', 'update'], type='str'),
-                type=dict(required=True, type='str', choices=['vmxnet','vmxnet2','vmxnet3','e1000','e1000e','pcnet32']),
-                network_name=dict(required=True, type='str'),
+                type=dict(required=False, type='str', default='vmxnet3', choices=['vmxnet','vmxnet2','vmxnet3','e1000','e1000e','pcnet32']),
+                network_name=dict(required=False, type='str'),
                 datacenter=dict(required=True, type='str'),
                 )
         )
     
-    module = AnsibleModule(argument_spec=argument_spec)
+    module = AnsibleModule(argument_spec=argument_spec,
+			required_if= ('state','create',['network_name']),
+			required_if= ('state','update',['network_name','label']),
+			required_if= ('state','absent',['label'])
+			)
 
     if not HAS_PYVMOMI:
         module.fail_json(msg='pyvmomi is required for this module')
