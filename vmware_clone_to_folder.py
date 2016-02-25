@@ -7,28 +7,6 @@ short_description: Clone a template or vm and place it in a given location throu
 description:
      - Clones a given VM or template and places it in a specified location
 options:
-  hostname:
-    description:
-      - The hostname of the vcenter server the module will connect to.
-    required: true
-  validate_certs:
-    description:
-      - Validate SSL certs.  Note, if running on python without SSLContext
-        support (typically, python < 2.7.9) you will have to set this to C(no)
-        as pysphere does not support validating certificates on older python.
-        Prior to 2.1, this module would always validate on python >= 2.7.9 and
-        never validate on python <= 2.7.8.
-    required: false
-    default: yes
-    choices: ['yes', 'no']
-  username:
-    description:
-      - Username to connect to vcenter as.
-    required: true
-  password:
-    description:
-      - Password of the user to connect to vcenter as.
-    required: true
   resource_pool:
     description:
       - The name of the resource_pool to create the VM in.
@@ -42,11 +20,8 @@ options:
     description:
       - The file path to place the VM.
     required: True
-  port:
-    description:
-      - The port to connect to vSphere on.
-    required: false
-    default: 443
+extends_documentation_fragment: vmware.documentation
+
 notes:
   - This module should run from a system that can access vSphere directly.
     Either by using local_action, or using delegate_to. This module will not
