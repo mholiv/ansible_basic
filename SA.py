@@ -256,6 +256,9 @@ def create_nic(module, conn, vm, desired_nic):
     else:
         sys.exit('failure')
 
+# def needs_update(desired_nic, all_nics):
+#     for nic in all_nics:
+#         if nic['nic_obj']['backing']['deviceName'] == desired_nic['network']
 
 
 def main():
@@ -284,9 +287,10 @@ def main():
     elif state == 'absent':
         print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
     elif state == 'update':
-        print update_nic(module, conn, proper_vm, desired_nic, all_nics)
-        
-
+        for nic in all_nics:
+            print nic['nic_obj'].backing
+        # if needs_update(desired_nic, all_nics):
+        #     print update_nic(module, conn, proper_vm, desired_nic, all_nics)
     else:
         print "Not here"
 
