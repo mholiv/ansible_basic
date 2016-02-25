@@ -14,7 +14,7 @@ except ImportError:
 import sys
 
 path = '/JONS/megladon/DONT_MESS_WITH-1'
-state = 'present'
+state = 'absent'
 nic_type = 'vmxnet3'
 hostname = 'vc.lab.local'
 username = 'administrator'
@@ -87,12 +87,12 @@ def get_nics(vm_obj):
 
     for device in vm_obj.config.hardware.device:
         if isinstance(device, vim.vm.device.VirtualEthernetCard):
-            print device.backing
             nics.append(dict(
                 network=device.deviceInfo.summary,
                 type=device.__class__.__name__,
                 key=device.key,
-                label=device.deviceInfo.label
+                label=device.deviceInfo.label,
+                nic_obj=device
                 ))
 
     return nics
@@ -136,6 +136,33 @@ def get_vm_object(module, conn, path, datacenter):
     except TypeError:
         sys.exit("No matching VM found")
 
+
+def remove_nic(module, conn, vm, desired_nic, all_nics):
+    vm_spec = vim.vm.ConfigSpec()
+    nic_spec = vim.vm.device.VirtualDeviceSpec()
+    changes = []
+    nic_obj = None
+
+    for nic in all_nics:
+        if nic['id'] == desired_nic['id']:
+            nic_obj = nic['nic_obj']
+
+    if not nic_obj:
+        sys.exit("Nic with id not found")
+
+    nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.remove
+    nic_spec.device = nic_obj
+    changes.append(virtual_nic_spec)
+    spec = vim.vm.ConfigSpec()
+    spec.deviceChange = changes
+    task = vm.ReconfigVM_Task(spec=spec)
+    success, result = wait_for_task(task)
+
+    if success:
+        return desired_nic
+    else:
+        sys.exit('failure')
+
 def create_nic(module, conn, vm, desired_nic):
     vm_spec = vim.vm.ConfigSpec()
     nic_spec = vim.vm.device.VirtualDeviceSpec()
@@ -171,7 +198,12 @@ def create_nic(module, conn, vm, desired_nic):
     vm_spec.deviceChange = changes
     task = vm.ReconfigVM_Task(spec=vm_spec)
 
-    return wait_for_task(task)
+    success, result = wait_for_task(task)
+
+    if success:
+        return desired_nic
+    else:
+        sys.exit('failure')
 
 
 
@@ -189,14 +221,17 @@ def main():
         network='Servers',
         type=nic_type_map[nic_type],
         dvs=False,
+        id=4002
         )
     
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
 
-    if state == 'present':
+    if state == 'create':
         print create_nic(module, conn, proper_vm, desired_nic)
+    elif state == 'absent':
+        print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
         
 
     else:
