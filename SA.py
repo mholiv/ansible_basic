@@ -288,7 +288,7 @@ def main():
         print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
     elif state == 'update':
         for nic in all_nics:
-            print dir(nic['nic_obj'].backing)
+            print nic['nic_obj'].backing.__class__.__name__
         # if needs_update(desired_nic, all_nics):
         #     print update_nic(module, conn, proper_vm, desired_nic, all_nics)
     else:
