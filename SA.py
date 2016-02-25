@@ -152,7 +152,7 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
 
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.remove
     nic_spec.device = nic_obj
-    changes.append(virtual_nic_spec)
+    changes.append(nic_spec)
     spec = vim.vm.ConfigSpec()
     spec.deviceChange = changes
     task = vm.ReconfigVM_Task(spec=spec)
