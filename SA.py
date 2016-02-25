@@ -227,11 +227,11 @@ def main():
     conn = connect_to_api()
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
-
-    if state == 'create':
-        print create_nic(module, conn, proper_vm, desired_nic)
-    elif state == 'absent':
-        print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
+    print all_nics
+    # if state == 'create':
+    #     print create_nic(module, conn, proper_vm, desired_nic)
+    # elif state == 'absent':
+    #     print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
         
 
     else:
