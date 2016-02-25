@@ -151,7 +151,7 @@ def create_nic(module, conn, vm, desired_nic):
     vm_spec.deviceChange = changes
     e = vm.ReconfigVM_Task(spec=vm_spec)
 
-    return e
+    return e.info
 
 
 
@@ -169,7 +169,7 @@ def main():
         network='Servers',
         type=nic_type_map[nic_type],
         label='from script',
-        id=4010
+        id=4110
         )
     
     conn = connect_to_api()
@@ -177,8 +177,8 @@ def main():
     all_nics = get_nics(proper_vm)
 
     if state == 'present':
-        print all_nics
-        #print create_nic(module, conn, proper_vm, desired_nic)
+        #print all_nics
+        print create_nic(module, conn, proper_vm, desired_nic)
         
 
     else:
