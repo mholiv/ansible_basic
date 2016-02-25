@@ -209,7 +209,7 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
 
 def needs_update(desired_nic, all_nics):
     for nic in all_nics:
-        if nic['nic_obj']['backing']['deviceName'] == desired_nic['network']:
+        if nic['nic_obj'].backing.deviceName == desired_nic['network']:
             if desired_nic['dvs']:
                 if 'Distrubted' in nic['nic_obj'].backing.__class__.__name__:
                     return False
