@@ -52,13 +52,31 @@ requirements:
 
 
 EXAMPLES = '''
-# Clone an existing template or VM into a specified folder.
-- vvmware_clone_to_folder:
-    hostname: vcenter.mydomain.local
-    username: myuser
-    password: mypass
-    template_location: /templates/clienta/template436
-    destination: /clients/clienta/clientaVM
+# Update the NIC 'Network adapter 1' on the 'SharekVM1' VM inside of /sharks/megladon/ 
+# within the Ocean datacenter 
+
+- name: Update NIC
+  vmware_nic:
+      vm_path: /sharks/megladon/SharkVM1
+      state: update
+      hostname: vcenter.domain.local
+      username: administrator
+      password: password
+      datacenter: Ocean
+      network_name: Servers
+      label: Network adapter 1
+
+# Create a new vmxnet3 NIC, associate with Servers network, and attach to SharkVM1.  
+- name: Create NIC
+  vmware_nic:
+      vm_path: /sharks/megladon/SharkVM1
+      state: update
+      hostname: vcenter.domain.local
+      username: administrator
+      password: password
+      datacenter: Ocean
+      network_name: Servers
+      type: vmxnet3
 '''
 
 
