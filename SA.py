@@ -156,12 +156,12 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
     nic_spec.device.macAddress = nic_obj.macAddress
 
     if desired_nic['dvs']:
-        pg_obj = get_obj(content, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
+        pg_obj = get_obj_by_name(conn, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
         dvs_port_connection = vim.dvs.PortConnection()
         dvs_port_connection.portgroupKey= pg_obj.key
         dvs_port_connection.switchUuid= pg_obj.config.distributedVirtualSwitch.uuid
-        nicspec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
-        nicspec.device.backing.port = dvs_port_connection
+        nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
+        nic_spec.device.backing.port = dvs_port_connection
     else:
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
@@ -203,11 +203,9 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.remove
     nic_spec.device = nic_obj
     changes.append(nic_spec)
-    spec = vim.vm.ConfigSpec()
-    spec.deviceChange = changes
-    task = vm.ReconfigVM_Task(spec=spec)
+    vm_spec.deviceChange = changes
+    task = vm.ReconfigVM_Task(spec=vm_spec)
     success, result = wait_for_task(task)
-
 
     if success:
         return desired_nic
@@ -223,12 +221,12 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec.device = getattr(vim.vm.device, desired_nic['type'])()
 
     if desired_nic['dvs']:
-        pg_obj = get_obj(content, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
+        pg_obj = get_obj_by_name(conn, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
         dvs_port_connection = vim.dvs.PortConnection()
         dvs_port_connection.portgroupKey= pg_obj.key
         dvs_port_connection.switchUuid= pg_obj.config.distributedVirtualSwitch.uuid
-        nicspec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
-        nicspec.device.backing.port = dvs_port_connection
+        nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
+        nic_spec.device.backing.port = dvs_port_connection
     else:
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
@@ -256,9 +254,21 @@ def create_nic(module, conn, vm, desired_nic):
     else:
         sys.exit('failure')
 
-# def needs_update(desired_nic, all_nics):
-#     for nic in all_nics:
-#         if nic['nic_obj']['backing']['deviceName'] == desired_nic['network']
+def needs_update(desired_nic, all_nics):
+    for nic in all_nics:
+        if nic['nic_obj']['backing']['deviceName'] == desired_nic['network']:
+            if desired_nic['dvs']:
+                if 'Distrubted' in nic['nic_obj'].backing.__class__.__name__:
+                    return False
+                else:
+                    continue
+            else:
+                if 'Network' in nic['nic_obj'].backing.__class__.__name__:
+                    return False
+                else:
+                    continue
+
+    return True
 
 
 def main():
