@@ -7,6 +7,82 @@ try:
 except ImportError:
     HAS_PYVMOMI = False
 
+
+DOCUMENTATION = '''
+---
+module: vmware_clone_to_folder
+short_description: Clone a template or vm and place it in a given location through VMware vSphere.
+description:
+     - Clones a given VM or template and places it in a specified location
+options:
+  hostname:
+    description:
+      - The hostname of the vcenter server the module will connect to.
+    required: true
+    default: null
+    aliases: []
+  validate_certs:
+    description:
+      - Validate SSL certs.  Note, if running on python without SSLContext
+        support (typically, python < 2.7.9) you will have to set this to C(no)
+        as pysphere does not support validating certificates on older python.
+        Prior to 2.1, this module would always validate on python >= 2.7.9 and
+        never validate on python <= 2.7.8.
+    required: false
+    default: yes
+    choices: ['yes', 'no']
+    version_added: 2.1
+  username:
+    description:
+      - Username to connect to vcenter as.
+    required: true
+    default: null
+  password:
+    description:
+      - Password of the user to connect to vcenter as.
+    required: true
+    default: null
+  resource_pool:
+    description:
+      - The name of the resource_pool to create the VM in.
+    required: false
+    default: Resources
+  template_location:
+    description:
+      - The file path to the template.
+    required: True
+    default: None
+  destination:
+    description:
+      - The file path to place the VM.
+    required: True
+    default: None
+  port:
+    description:
+      - The port to connect to vSphere on.
+    required: false
+    default: 443
+notes:
+  - This module should run from a system that can access vSphere directly.
+    Either by using local_action, or using delegate_to. This module will not
+    be able to find nor place VMs or templates in the root folder.
+author: "Caitlin Campbell <cacampbe@redhat.com>"
+requirements:
+  - "python >= 2.6"
+  - pysphere
+'''
+
+
+EXAMPLES = '''
+# Clone an existing template or VM into a specified folder.
+- vvmware_clone_to_folder:
+    hostname: vcenter.mydomain.local
+    username: myuser
+    password: mypass
+    template_location: /templates/clienta/template436
+    destination: /clients/clienta/clientaVM
+'''
+
 def connect_to_api_custom(module, disconnect_atexit=True):
 
     hostname = module.params['hostname']
@@ -36,20 +112,6 @@ def connect_to_api_custom(module, disconnect_atexit=True):
         atexit.register(connect.Disconnect, service_instance)
     return service_instance
 
-
-def find_vm(si,name):
-    """
-    Find a virtual machine by it's name and return it
-    """
-
-    content = si.content
-    obj_view = content.viewManager.CreateContainerView(content.rootFolder,[vim.VirtualMachine],True)
-    vm_list = obj_view.view
-
-    for vm in vm_list:
-        if vm.name == name:
-            return vm
-    return None
 
 
 def find_resource_pool(si,name):
@@ -89,9 +151,6 @@ def vm_clone_handler(module,si,vm_name,path_list,template_vm,resource_pool_name,
         module.fail_json(msg='Unable to find %s' % str(path_list))
 
 
-    #origfolder = find_folder(si,unique_root_folder_name)
-    #folder = find_by_name(origfolder,folder_name)
-
     relocate_spec = vim.vm.RelocateSpec(pool=resource_pool)
 
     clone_spec = vim.vm.CloneSpec(powerOn=False,location=relocate_spec)
@@ -109,21 +168,6 @@ def vm_clone_handler(module,si,vm_name,path_list,template_vm,resource_pool_name,
         module.fail_json(msg='Unable to clone VM %s' % (vm_name),err=e.message)
 
     return vm
-
-
-def find_folder(si,name):
-    """
-    Find a folder by it's name and return it
-    """
-
-    content = si.content
-    obj_view = content.viewManager.CreateContainerView(content.rootFolder,[vim.Folder],True)
-    folder_list = obj_view.view
-
-    for folder in folder_list:
-        if folder.name == name:
-            return folder
-    return None
 
 
 def find_by(folder, matcher_method, *args, **kwargs):
@@ -166,21 +210,6 @@ def find_by(folder, matcher_method, *args, **kwargs):
         elif hasattr(entity, 'childEntity'):
             # add all child entities from this object to our search
             entity_stack.extend(entity.childEntity)
-
-
-def find_all_by_name(folder, name):
-    """Search for all entities with name.
-    This method will search within the folder for any object with the name
-    supplied.
-    :type folder: vim.Folder
-    :param folder: The top most folder to recursively search for the child.
-    :type name: types.StringTypes
-    :param name: Name of the child you are looking for, assumed to be unique.
-    :rtype types.ListType: contains [<vim.ManagedEntity>]
-    :return: all the entities found with the name 'name'.
-    """
-    # return all entities by running the generator to it's end
-    return list(find_by(folder, lambda e: e.name == name))
 
 
 def find_by_name(folder, name):
@@ -291,7 +320,7 @@ def main():
     finalVM = vm_clone_handler(module,si,vm_name,path_list,template,resource_pool,conn)
 
     if finalVM is not None:
-        module.exit_json(changed=True, template_name=namevar, path=pathvar)
+        module.exit_json(changed=True, template_name=template_name, path=destination)
     else:
         module.fail_json(msg='Unknown error creating vm %s.' % vm_name)
 
