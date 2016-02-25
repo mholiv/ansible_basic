@@ -209,6 +209,7 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
 
 def needs_update(module, desired_nic, all_nics):
     nic_obj = None
+    module.fail_json(msg='allnics %s' % all_nics)
 
     for nic in all_nics:
         matching_nics = []
@@ -274,7 +275,6 @@ def main():
     conn = connect_to_api(module)
     proper_vm = get_vm_object(module, conn, path, datacenter)
     all_nics = get_nics(proper_vm)
-    module.fail_json(msg='allnics %s' % all_nics)
 
     nic_type_map = dict(
         vmxnet3 = 'VirtualVmxnet3',
