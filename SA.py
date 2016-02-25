@@ -25,6 +25,21 @@ count = 2
 module = None
 dvs = False
 
+def wait_for_task(task):
+
+    while True:
+        if task.info.state == vim.TaskInfo.State.success:
+            return True, task.info.result
+        if task.info.state == vim.TaskInfo.State.error:
+            try:
+                raise TaskError(task.info.error)
+            except AttributeError:
+                raise TaskError("An unknown error has occurred")
+        if task.info.state == vim.TaskInfo.State.running:
+            time.sleep(15)
+        if task.info.state == vim.TaskInfo.State.queued:
+            time.sleep(15)
+
 def get_obj_by_name(content, vimtype, name):
     """
      Get the vsphere object associated with a given text name
@@ -75,7 +90,7 @@ def get_nics(vm_obj):
             print device.backing
             nics.append(dict(
                 network=device.deviceInfo.summary,
-                type=device.__class__.__name__.lower(),
+                type=device.__class__.__name__,
                 key=device.key,
                 label=device.deviceInfo.label
                 ))
@@ -126,50 +141,54 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec = vim.vm.device.VirtualDeviceSpec()
     changes = []
 
-    # nic_spec.fileOperation = "create"
     nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
-    nic_spec.device = getattr(vim.vm.device, 'VirtualVmxnet3')()
+    nic_spec.device = getattr(vim.vm.device, desired_nic['type'])()
 
-    if dvs:
-        sys.exit('dvs not supported yet')
+    if desired_nic['dvs']:
+        pg_obj = get_obj(content, [vim.dvs.DistributedVirtualPortgroup], desired_nic['network'])
+        dvs_port_connection = vim.dvs.PortConnection()
+        dvs_port_connection.portgroupKey= pg_obj.key
+        dvs_port_connection.switchUuid= pg_obj.config.distributedVirtualSwitch.uuid
+        nicspec.device.backing = vim.vm.device.VirtualEthernetCard.DistributedVirtualPortBackingInfo()
+        nicspec.device.backing.port = dvs_port_connection
     else:
         nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
     
     nic_spec.device.wakeOnLanEnabled = True
     nic_spec.device.deviceInfo = vim.Description()
-    nic_spec.device.deviceInfo.label = desired_nic['label']
     nic_spec.device.deviceInfo.summary = desired_nic['network']     
     nic_spec.device.backing.deviceName = desired_nic['network']
     nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
     nic_spec.device.connectable.startConnected = True
     nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.addressType = 'generated'
-    nic_spec.device.key = desired_nic['id']
+    # The two below do not work, label and key, they are ignored by the API
+    # nic_spec.device.deviceInfo.label = desired_nic['label']
+    # nic_spec.device.key = desired_nic['id']
 
     changes.append(nic_spec)
     vm_spec.deviceChange = changes
-    e = vm.ReconfigVM_Task(spec=vm_spec)
+    task = vm.ReconfigVM_Task(spec=vm_spec)
 
-    return e.info
+    return wait_for_task(task)
 
 
 
 def main():
     nic_type_map = dict(
-        vmxnet3 = 'vim.vm.device.VirtualVmxnet3',
-        vmxnet2 = 'vim.vm.device.VirtualVmxnet2',
-        vmxnet  = 'vim.vm.device.VirtualVmxnet',
-        e1000   = 'vim.vm.device.VirtualE1000',
-        e1000e  = 'vim.vm.device.VirtualE1000e',
-        pcnet32 = 'vim.vm.device.VirtualPCNet32'
+        vmxnet3 = 'VirtualVmxnet3',
+        vmxnet2 = 'VirtualVmxnet2',
+        vmxnet  = 'VirtualVmxnet',
+        e1000   = 'VirtualE1000',
+        e1000e  = 'VirtualE1000e',
+        pcnet32 = 'VirtualPCNet32'
         )
 
     desired_nic = dict(
         network='Servers',
         type=nic_type_map[nic_type],
-        label='from script',
-        id=4110
+        dvs=False,
         )
     
     conn = connect_to_api()
@@ -177,8 +196,7 @@ def main():
     all_nics = get_nics(proper_vm)
 
     if state == 'present':
-        print all_nics
-        #print create_nic(module, conn, proper_vm, desired_nic)
+        print create_nic(module, conn, proper_vm, desired_nic)
         
 
     else:
