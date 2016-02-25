@@ -208,18 +208,32 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
 
 
 def needs_update(desired_nic, all_nics):
+    nic_obj = None
+
     for nic in all_nics:
-        if nic['nic_obj'].backing.deviceName == desired_nic['network']:
-            if desired_nic['dvs']:
-                if 'Distrubted' in nic['nic_obj'].backing.__class__.__name__:
-                    return False
-                else:
-                    continue
+        matching_nics = []
+        if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
+            matching_nics.append(nic['nic_obj'])
+
+    if len(matching_nics) == 1:
+        nic_obj = matching_nics[0]
+    elif len(matching_nics) > 1:
+        module.fail_json(msg="One or more NICs with the label: %s have been found. You'll have to update the proper NIC manually. Or ensure the NICs have unique labels and try again." % desired_nic['label'])
+    elif len(matching_nics) == 0:
+        module.fail_json(msg="No NIC with the name: %s was found" % desired_nic['label'])
+
+
+    if nic_obj.backing.deviceName == desired_nic['network']:
+        if desired_nic['dvs']:
+            if 'Distrubted' in nic_obj.backing.__class__.__name__:
+                return False
             else:
-                if 'Network' in nic['nic_obj'].backing.__class__.__name__:
-                    return False
-                else:
-                    continue
+                continue
+        else:
+            if 'Network' in nic_obj.backing.__class__.__name__:
+                return False
+            else:
+                continue
 
     return True
 
