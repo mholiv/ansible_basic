@@ -127,8 +127,7 @@ def remove_nic(module, conn, vm, desired_nic, all_nics):
 
     for nic in all_nics:
         matching_nics = []
-        print nic['nic_obj'].deviceInfo.label
-        if nic['nic_obj']['deviceInfo']['label'] == desired_nic['label']:
+        if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
 
     if len(matching_nics) == 1:
@@ -161,7 +160,7 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
 
     for nic in all_nics:
         matching_nics = []
-        if nic['nic_obj']['deviceInfo']['label'] == desired_nic['label']:
+        if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
 
     if len(matching_nics) == 1:
