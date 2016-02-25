@@ -212,15 +212,19 @@ def needs_update(module, desired_nic, all_nics):
 
     for nic in all_nics:
         matching_nics = []
+        all_nic_labels = []
+
         if nic['nic_obj'].deviceInfo.label == desired_nic['label']:
             matching_nics.append(nic['nic_obj'])
+
+        all_nic_labels.append(nic['nic_obj'].deviceInfo.label)
 
     if len(matching_nics) == 1:
         nic_obj = matching_nics[0]
     elif len(matching_nics) > 1:
         module.fail_json(msg="One or more NICs with the label: %s have been found. You'll have to update the proper NIC manually. Or ensure the NICs have unique labels and try again." % desired_nic['label'])
     elif len(matching_nics) == 0:
-        module.fail_json(msg="No NIC with the name: %s was found" % desired_nic['label'])
+        module.fail_json(msg="No NIC with the name: %s was found. Found: %s " % (desired_nic['label'], all_nic_labels))
 
 
     if nic_obj.backing.deviceName == desired_nic['network']:
