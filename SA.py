@@ -234,7 +234,7 @@ def main():
     #     print remove_nic(module, conn, proper_vm, desired_nic, all_nics)
         
 
-    else:
-        print "Not here"
+    # else:
+    #     print "Not here"
 
 main()
