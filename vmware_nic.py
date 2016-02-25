@@ -306,13 +306,17 @@ def main():
     elif state == 'absent':
         changed = True
         results = remove_nic(module, conn, proper_vm, desired_nic, all_nics)
+
+        module.exit_json(changed=changed, msg="NIC removed")
     
     elif state == 'update':
         if needs_update(module, desired_nic, all_nics):
             changed=True
-            results = update_nic(module, conn, proper_vm, desired_nic, all_nics)
+            update_nic(module, conn, proper_vm, desired_nic, all_nics)
+        else:
+            changed=False
 
-    module.exit_json(changed=changed, nic=desired_nic)
+        module.exit_json(changed=changed)
 
 
 

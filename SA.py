@@ -175,9 +175,8 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
     nic_spec.device.backing.deviceName = desired_nic['network']
 
     changes.append(nic_spec)
-    spec = vim.vm.ConfigSpec()
-    spec.deviceChange = changes
-    task = vm.ReconfigVM_Task(spec=spec)
+    vm_spec.deviceChange = changes
+    task = vm.ReconfigVM_Task(spec=vm_spec)
     success, result = wait_for_task(task)
 
     if success:
@@ -241,7 +240,7 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec.device.addressType = 'generated'
     # The two below do not work, label and key, they are ignored by the API
     # nic_spec.device.deviceInfo.label = desired_nic['label']
-    # nic_spec.device.key = desired_nic['id']
+    # nic_spec.device.key = desired_nic['key']
 
     changes.append(nic_spec)
     vm_spec.deviceChange = changes
