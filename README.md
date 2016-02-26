@@ -1,17 +1,52 @@
-# VMware Modules for Ansible
+C$&4 Custom Code
+================
 
-Included are some useful VMWare Utilities 
+Here is the custom code developed as part of the engagement.
 
-## vmware_clone_to_folder
 
-An ansible module that enables to cloning of arbitrarily located templates and vms to selected folders.
+## Instructions 
 
-Requires pyVmomi
+To use either the VMWare or Windows stuff, you'll want to place this at the root level of your Ansible project directory (be careful not to include the `.git` folder).
 
-This module will not work with templates and vms located directly in the root folder.
 
-##vmware_add_hdd
+### VMWare Modules
 
-An ansible module that enables adding drives to an iscsi interface on an arbitrary VM.
+There are currently 2 modules, one more on the way:
 
-Requires pyVmomi
+1. `vmware_clone_to_folder`
+
+2. `vmware_nic`
+
+3. `vmware_disk` (WIP)
+
+For documentation you can see the source code of each module under the `DOCUMENTATION` string or alternatively, from within this top level directory you can do:
+
+`ansible-doc -M ./library $MODULE_NAME`
+
+and it will give you a `less` like format for reading the documentation.
+
+
+### Windows Reboot
+
+This code stack will work up through the release of Ansible 2.1 (target release of late April). Once 2.1 is released you'll want to use the native features for rebooting Windows.
+
+_USAGE_
+
+```yaml
+## run_this.yml 
+- hosts: win
+  tasks:
+  - include: updatereboot.yml
+    with_sequence: start=1 end=5
+
+## updatereboot.yml
+- name: win_update
+  win_updates:
+  register: wu_result
+  when: wu_result | default({"changed":"true"}) | changed
+
+- name: reboot
+  win_reboot:
+  when: wu_result.reboot_required | default(False)
+```
+
