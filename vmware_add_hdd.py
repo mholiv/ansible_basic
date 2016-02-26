@@ -10,7 +10,7 @@ description:
 options:
   diskSize:
     description:
-      - The size of the new disk 
+      - The size of the new disk in GB
     required: false
     default: Resources
   thinDisk:
@@ -35,13 +35,14 @@ requirements:
 
 
 EXAMPLES = '''
-# Clone an existing template or VM into a specified folder.
-- vvmware_clone_to_folder:
+# Add a iscsi device to iscsi adapter on vm.
+- vvmware_add_hdd:
     hostname: vcenter.mydomain.local
     username: myuser
     password: mypass
-    template_location: /templates/clienta/template436
-    destination: /clients/clienta/clientaVM
+    thinDisk: False
+    vm: /clients/clienta/clientaVM
+    diskSize: 3
 '''
 
 
