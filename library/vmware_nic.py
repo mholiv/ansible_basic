@@ -70,7 +70,7 @@ EXAMPLES = '''
 - name: Create NIC
   vmware_nic:
       vm_path: /sharks/megladon/SharkVM1
-      state: update
+      state: create
       hostname: vcenter.domain.local
       username: administrator
       password: password

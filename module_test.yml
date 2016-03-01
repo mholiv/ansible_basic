@@ -1,0 +1,82 @@
+---
+- name: Test Custom Modules Book
+  connection: local
+  hosts: localhost
+  tasks:
+  - name: Clone template to VM
+    vmware_clone_to_folder:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      template_location: "{{templateLocation}}"
+      destination: "{{vmLocation}}"
+      validate_certs: False
+
+  - name: Test add iSCSI device
+    vmware_add_hdd:
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      thinDisk: True
+      vm: "{{vmLocation}}"
+      diskSize: "{{diskSize}}"
+      validate_certs: False
+
+  - name: Create NIC
+    vmware_nic:
+      vm_path: "{{vmLocation}}"
+      state: create
+      hostname: "{{hostname}}"
+      username: "{{username}}"
+      password: "{{password}}"
+      datacenter: "{{datacenter}}"
+      network_name: "{{networkName}}"
+      type: "{{interfaceType}}"
+      validate_certs: False
+
+
+
+- name: configure Spacewalk client
+  hosts: testservers
+  sudo: True
+  vars:
+    spacewalk_server: INSERT-SPACEWALK-SERVER-HOSTNAME-HERE
+    activation_key: false
+  tasks:
+    - name: rhel activation key
+      set_fact:
+        activation_key: 1-rhel-{{ ansible_distribution_major_version }}-x86_64-server-key
+        distro_shortname: rhel
+      when: ansible_distribution == "Red Hat Enterprise Linux"
+    - name: centos activation key
+      set_fact:
+        activation_key: 1-centos-{{ ansible_distribution_major_version }}-x86_64-server-key
+        distro_shortname: centos
+      when: ansible_distribution == "CentOS"
+
+    - name: remove spacewalk cert chain
+      yum:
+        name: rhn-org-trusted-ssl-cert
+        state: removed
+
+      name: install cert chain
+      yum:
+        name: http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm
+        state: present
+
+    - name: Install Repo
+      yum:
+        name: http://{{ fqdn }}/pub/repos/
+        state: present
+
+    - name: Register Chanels
+      rhnreg_ks:
+        state: present
+        serverURL: {{ spacewalk_server }}
+        activationkey: {{ activation_key }}
+        when: activation_key is defined
+
+    - name: install channel GPG key
+      rpm_key:
+        state: present
+        key: https://{ spacewalk_server }/pub/repos/{{ distro_shortname }}/{{ ansible_distribution_major_version }}/x86_64/os/RPM-GPG-KEY-redhat-release
