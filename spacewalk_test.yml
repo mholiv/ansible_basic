@@ -2,9 +2,7 @@
 - name: configure Spacewalk client
   hosts: testservers
   sudo: True
-  vars:
-    spacewalk_server: INSERT-SPACEWALK-SERVER-HOSTNAME-HERE
-    activation_key: false
+
   tasks:
     - name: rhel activation key
       set_fact:
@@ -25,11 +23,6 @@
       name: install cert chain
       yum:
         name: http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm
-        state: present
-
-    - name: Install Repo
-      yum:
-        name: http://{{ fqdn }}/pub/repos/
         state: present
 
     - name: Register Chanels
