@@ -5,7 +5,7 @@
 
   vars:
     CA_CERTDIR: /etc/openldap/cacerts
-    HOSTNAME: myhostname
+    HOSTNAME: inventory_hostname
 
   tasks:
   - name: Install openldap-clients sssd oddjob-mkhomedir
@@ -82,7 +82,7 @@
       owner: root
       group: root
       mode: 0600
-      setype: '{{NEEEEDTOOOOSEEET}}'
+      setype: sssd_conf_t
 
   - name: Set up NSSwitch
     copy:
