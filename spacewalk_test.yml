@@ -1,39 +1,39 @@
 ---
 - name: configure Spacewalk client
   hosts: all
-  sudo: True
+  become: True
 
   tasks:
-    - name: rhel activation key
-      set_fact:
-        activation_key: 1-rhel-{{ ansible_distribution_major_version }}-x86_64-server-key
-        distro_shortname: rhel
-      when: ansible_distribution == "Red Hat Enterprise Linux"
+  - name: rhel activation key
+    set_fact:
+      activation_key: 1-rhel-{{ ansible_distribution_major_version }}-x86_64-server-key
+      distro_shortname: rhel
+    when: ansible_distribution == "Red Hat Enterprise Linux"
 
-    - name: centos activation key
-      set_fact:
-        activation_key: 1-centos-{{ ansible_distribution_major_version }}-x86_64-server-key
-        distro_shortname: centos
-      when: ansible_distribution == "CentOS"
+  - name: centos activation key
+    set_fact:
+      activation_key: 1-centos-{{ ansible_distribution_major_version }}-x86_64-server-key
+      distro_shortname: centos
+    when: ansible_distribution == "CentOS"
 
-    - name: remove spacewalk cert chain
-      yum:
-        name: rhn-org-trusted-ssl-cert
-        state: removed
+  - name: remove spacewalk cert chain
+    yum:
+      name: rhn-org-trusted-ssl-cert
+      state: removed
 
-      name: install cert chain
-      yum:
-        name: http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm
-        state: present
+    name: install cert chain
+    yum:
+      name: http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm
+      state: present
 
-    - name: Register Chanels
-      rhnreg_ks:
-        state: present
-        serverURL: '{{ spacewalk_server }}'
-        activationkey: '{{ activation_key }}'
-        when: activation_key is defined
+  - name: Register Chanels
+    rhnreg_ks:
+      state: present
+      serverURL: '{{ spacewalk_server }}'
+      activationkey: '{{ activation_key }}'
+      when: activation_key is defined
 
-    - name: install channel GPG key
-      rpm_key:
-        state: present
-        key: https://{{spacewalk_server }}/pub/repos/{{ distro_shortname }}/{{ ansible_distribution_major_version }}/x86_64/os/RPM-GPG-KEY-redhat-release
+  - name: install channel GPG key
+    rpm_key:
+      state: present
+      key: https://{{spacewalk_server }}/pub/repos/{{ distro_shortname }}/{{ ansible_distribution_major_version }}/x86_64/os/RPM-GPG-KEY-redhat-release
