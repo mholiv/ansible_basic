@@ -1,0 +1,12 @@
+---
+- name: Configre DNS Server
+  hosts: all
+  become: True
+
+
+  tasks:
+  - name: Configre DNS Server
+    lineinfile:
+      dest: /etc/resolv.conf
+      regexp: ^nameserver
+      line: nameserver {{dnsServer}}

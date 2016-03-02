@@ -5,7 +5,7 @@
 
   vars:
     CA_CERTDIR: /etc/openldap/cacerts
-    HOSTNAME: inventory_hostname
+    HOSTNAME: myhostname
 
   tasks:
   - name: Install openldap-clients sssd oddjob-mkhomedir
@@ -38,10 +38,10 @@
   - name: Install Federal Common Policy CA Certs
     shell: certutil -d {{ CA_CERTDIR }} -A -n {{ item }},,
     with_items:
-      - 'DHS-CA4-3' -i /tmp/dhs-ca4-3.crt -t CT
-      - 'DHS-CA4-2' -i /tmp/dhs-ca4-2.crt -t CT
-      - 'US Treasury Root CA' -i /tmp/us-treasury-root.crt -t CT
-      - 'Federal Common Policy CA' -i /tmp/federal-common-policy-ca.crt -t CT
+      - "'DHS-CA4-3' -i /tmp/dhs-ca4-3.crt -t CT"
+      - "'DHS-CA4-2' -i /tmp/dhs-ca4-2.crt -t CT"
+      - "'US Treasury Root CA' -i /tmp/us-treasury-root.crt -t CT"
+      - "'Federal Common Policy CA' -i /tmp/federal-common-policy-ca.crt -t CT"
 
   - name: Copy over ldap conf file
     copy:
@@ -65,6 +65,7 @@
     with_items:
       - nscd
       - nslcd
+    ignore_errors: yes
 
   - name: Remove nss-pam-ldapd
     yum:
@@ -94,7 +95,7 @@
   - name: Restart SSSD, MegaBus, and OddJobD
     service:
       name: '{{item}}'
-      status: restarted
+      state: restarted
       enabled: True
     with_items:
       - sssd
