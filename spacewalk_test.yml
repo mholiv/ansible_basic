@@ -8,7 +8,7 @@
     set_fact:
       activation_key: 1-rhel-{{ ansible_distribution_major_version }}-x86_64-server-key
       distro_shortname: rhel
-    when: ansible_distribution == "Red Hat Enterprise Linux"
+    when: (ansible_distribution == "Red Hat Enterprise Linux") or (ansible_distribution == "RedHat")
 
   - name: centos activation key
     set_fact:
@@ -21,17 +21,12 @@
       name: rhn-org-trusted-ssl-cert
       state: removed
 
-    name: install cert chain
-    yum:
-      name: http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm
-      state: present
+  - name: install cert chain
+    shell: "rpm -Uvh http://{{ spacewalk_server }}/pub/rhn-org-trusted-ssl-cert-1.0-2.noarch.rpm"
 
-  - name: Register Chanels
-    rhnreg_ks:
-      state: present
-      serverURL: '{{ spacewalk_server }}'
-      activationkey: '{{ activation_key }}'
-      when: activation_key is defined
+  - name: register spacewalk client
+    shell: "rhnreg_ks --force --serverUrl=https://{{ spacewalk_server }}/XMLRPC --activationkey={{ activation_key }}"
+    when: activation_key is defined
 
   - name: install channel GPG key
     rpm_key:
