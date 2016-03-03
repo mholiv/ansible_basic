@@ -1,0 +1,8 @@
+- name: win_update
+  win_updates:
+  register: wu_result
+  when: wu_result | default({"changed":"true"}) | changed
+
+- name: reboot
+  win_reboot:
+  when: wu_result.reboot_required | default(False)
