@@ -3,10 +3,13 @@
   hosts: all
   become: True
 
+  vars:
+    #dns_domain:
+    dns_nameservers: ['8.8.8.8', '8.8.4.4']
+    #dns_searchs:
 
   tasks:
   - name: Configre DNS Server
-    lineinfile:
-      dest: /etc/resolv.conf
-      regexp: ^nameserver
-      line: nameserver {{dnsServer}}
+    template:
+      src: templates/resolv.j2
+      dest: /etc/resov.conf
