@@ -177,6 +177,7 @@ def create_nic(module, conn, vm, desired_nic):
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
     
     nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    nic_spec.device.connectable.connected = True
     nic_spec.device.connectable.startConnected = True
     nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.wakeOnLanEnabled = True
@@ -184,6 +185,8 @@ def create_nic(module, conn, vm, desired_nic):
     nic_spec.device.deviceInfo.summary = desired_nic['network']     
     nic_spec.device.backing.deviceName = desired_nic['network']
     nic_spec.device.addressType = 'generated'
+
+
     # The two below do not work, label and key, they are ignored by the API
     # nic_spec.device.deviceInfo.label = desired_nic['label']
     # nic_spec.device.key = desired_nic['id']
@@ -270,6 +273,7 @@ def update_nic(module, conn, vm, desired_nic, all_nics):
         nic_spec.device.backing.network = get_obj_by_name(conn, [vim.Network], desired_nic['network'])
     
     nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
+    nic_spec.device.connectable.connected = True
     nic_spec.device.connectable.startConnected = True
     nic_spec.device.connectable.allowGuestControl = True
     nic_spec.device.wakeOnLanEnabled = True
