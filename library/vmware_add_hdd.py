@@ -128,7 +128,7 @@ def get_vm_object(module, conn, path):
 
 def main():
 
-    argument_spec = vmware_argument_spec()
+    argument_spec = argument_spec()
 
     argument_spec.update(
         dict(
@@ -143,16 +143,23 @@ def main():
     if HAS_PYVMOMI == False:
         module.fail_json(msg='pyvmomi is required for this module')
 
-    hostname = module.params['hostname']
-    username = module.params['username']
-    password = module.params['password']
+
     thinDisk = module.params['thinDisk']
     vm = module.params['vm']
     diskSize = module.params['diskSize']
     validate_certs = module.params['validate_certs']
 
-    conn = connect_to_api(module)
-    vmToWorkOn = get_vm_object(module, conn, vm)
+
+    if diskSize < 1:
+        module.exit_json(changed=False,
+                         vm=vm,
+                         diskUnitNumber=unitNumber,
+                         controlerKey=controlerKey,
+                         isThinDisk=thinDisk,
+                         msg='Disk size is big' )
+
+    else:
+        pass
 
     try:
         unitNumber, controlerKey = add_disk(module, vmToWorkOn, diskSize, thinDisk)

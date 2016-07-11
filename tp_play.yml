@@ -1,0 +1,21 @@
+vars:
+    desired_version: '1.2.3'
+# Playbook example
+- name: Check if bit defender works
+  win_file_version:
+    path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
+  register: exe_file_version
+  
+- name: Check if defender is there
+  win_file: 
+    path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
+    state: file
+  register: file_exists
+  
+- name: Copy over installer file
+  raw: "xcopy '\\depohpmgns0010v.tvlport.net\Windows\BitDefenderAV\BitdefenderClient\*' 'C:\BitdefenderClient'"
+  when: exe_file_version != desired_version
+  
+ - name: Run command 
+ 
+    

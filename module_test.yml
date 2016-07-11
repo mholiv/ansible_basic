@@ -14,13 +14,9 @@
 
   - name: Test add iSCSI device
     vmware_add_hdd:
-      hostname: "{{hostname}}"
-      username: "{{username}}"
-      password: "{{password}}"
       thinDisk: True
       vm: "{{vmLocation}}"
       diskSize: "{{diskSize}}"
-      validate_certs: False
 
   - name: Create NIC
     vmware_nic:
