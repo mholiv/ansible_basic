@@ -1,4 +1,14 @@
-- name: Touch test
-  file:
-    path: /tmp/foo.conf 
-    state: touch
+---
+- name: configure ldap
+  hosts: all
+  become: True
+
+  vars:
+    CA_CERTDIR: /etc/openldap/cacerts
+    HOSTNAME: myhostname
+
+  tasks:
+  - name: Touch test
+    file:
+      path: /tmp/foo.conf 
+      state: touch
