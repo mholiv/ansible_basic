@@ -1,0 +1,4 @@
+- name: Touch test
+  file:
+    path: /tmp/foo.conf 
+    state: touch
