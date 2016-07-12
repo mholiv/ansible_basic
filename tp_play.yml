@@ -25,11 +25,11 @@
     when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
 
   - name: Copy over 64-bit comm install
-    raw: 'xcopy "Z:\Commercial\epskit_x86\*" "C:\BitdefenderClient\*"'
+    raw: 'xcopy "Z:\Commercial\epskit_x64\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
 
   - name: Copy over x86 comm install
-    raw: 'xcopy "Z:\Commercial\epskit_x64\*" "C:\BitdefenderClient\*"'
+    raw: 'xcopy "Z:\Commercial\epskit_x86\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
 
   - name: Unmount drive
