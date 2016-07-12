@@ -1,21 +1,38 @@
-vars:
-    desired_version: '1.2.3'
-# Playbook example
-- name: Check if bit defender works
-  win_file_version:
-    path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
-  register: exe_file_version
-  
-- name: Check if defender is there
-  win_file: 
-    path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
-    state: file
-  register: file_exists
-  
-- name: Copy over installer file
-  raw: "xcopy '\\depohpmgns0010v.tvlport.net\Windows\BitDefenderAV\BitdefenderClient\*' 'C:\BitdefenderClient'"
-  when: exe_file_version != desired_version
-  
- - name: Run command 
- 
-    
+---
+
+#
+#Raw module Bit Defender Playbook. Writing a Bit Defender module is advised over using this.
+#
+
+- name: Install Bit Defender
+  hosts: all
+  tasks:
+  - name: Check if defender is there
+    win_file:
+      path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
+      state: file
+    register: file_exists
+
+  - name: Copy over x64 corp install
+    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x64\*" "C:\BitdefenderClient"'
+    when: architecture == 'x64' and file_exists == False and domain|search('corp') == True
+
+  - name: Copy over x86 corp install
+    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x86\*" "C:\BitdefenderClient"'
+    when: architecture != 'x64' and file_exists == False and domain|search('corp') == True
+
+  - name: Copy over x64 comm install
+    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x86\*" "C:\BitdefenderClient"'
+    when: architecture == 'x64' and file_exists == False and domain|search('corp') == False
+
+  - name: Copy over x86 comm install
+    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x64\*" "C:\BitdefenderClient"'
+    when: architecture != 'x64' and file_exists == False and domain|search('corp') == False
+
+  - name: Install the proper version x86
+    raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
+    when: file_exists == False and architecture != 'x64'
+
+  - name: Install the proper version x64
+    raw: 'C:\BitdefenderClient\epskit_x64.exe /bdparams /silent'
+    when: file_exists == False and architecture == 'x64'
