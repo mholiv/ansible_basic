@@ -12,21 +12,29 @@
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
     register: fileinfo
 
+  - name: Mount Drive
+    raw: 'net use Z: \\gnuthpmgns0010v.tvlport.net\windows_repository\Products\Bitdefender /user:galileo\poshadmin PASSWORD'
+    when: fileinfo.stat.exists != True
+
   - name: Copy over 64-bit corp install
-    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_64-bit\*" "C:\BitdefenderClient"'
+    raw: 'xcopy "Z:\Corporate\epskit_x64\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
 
   - name: Copy over x86 corp install
-    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x86\*" "C:\BitdefenderClient"'
+    raw: 'xcopy "Z:\Corporate\epskit_x86\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
 
   - name: Copy over 64-bit comm install
-    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x86\*" "C:\BitdefenderClient"'
+    raw: 'xcopy "Z:\Commercial\epskit_x86\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
 
   - name: Copy over x86 comm install
-    raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_64-bit\*" "C:\BitdefenderClient"'
+    raw: 'xcopy "Z:\Commercial\epskit_x64\*" "C:\BitdefenderClient\*"'
     when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
+
+  - name: Unmount drive
+    raw: 'net use Z: /DELETE'
+    when: fileinfo.stat.exists != True
 
   - name: Install the proper version x86
     raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
