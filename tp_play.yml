@@ -12,6 +12,18 @@
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
     register: fileinfo
 
+  - name: Debug1
+    debug:
+      msg: "{{ ansible_architecture }}"
+
+  - name: Debug2
+    debug:
+      msg: "{{ fileinfo.stat.exists }}"
+
+  - name: Debug3
+    debug:
+      msg: "{{ ansible_domain|search('corp') }}"
+
 
   - name: Copy over x64 corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x64\*" "C:\BitdefenderClient"'
