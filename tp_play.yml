@@ -12,38 +12,21 @@
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
     register: fileinfo
 
-  - name: Debug1
-    debug:
-      msg: "{{ ansible_architecture }}"
-
-  - name: Debug2
-    debug:
-      msg: "{{ fileinfo.stat.exists }}"
-
-  - name: Debug2.5
-    debug:
-      msg: "{{ ansible_fqdn }}"
-
-  - name: Debug3
-    debug:
-      msg: '{{ ansible_fqdn|search("corp") }}'
-
-
   - name: Copy over 64-bit corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_64-bit\*" "C:\BitdefenderClient"'
-    when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_domain|search('corp') == True
+    when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
 
   - name: Copy over x86 corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x86\*" "C:\BitdefenderClient"'
-    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_domain|search('corp') == True
+    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
 
   - name: Copy over 64-bit comm install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x86\*" "C:\BitdefenderClient"'
-    when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_domain|search('corp') == False
+    when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
 
   - name: Copy over x86 comm install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_64-bit\*" "C:\BitdefenderClient"'
-    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_domain|search('corp') == False
+    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
 
   - name: Install the proper version x86
     raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
