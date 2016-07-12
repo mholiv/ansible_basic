@@ -14,7 +14,7 @@
 
   - name: Debug1
     debug:
-      msg: "{{ facter_networking.domain }}"
+      msg: "{{ ansible_architecture }}"
 
   - name: Debug2
     debug:
@@ -22,11 +22,11 @@
 
   - name: Debug2.5
     debug:
-      msg: "{{ factor_domain }}"
+      msg: "{{ ansible_fqdn }}"
 
   - name: Debug3
     debug:
-      msg: '{{ factor_domain|search("corp") }}'
+      msg: '{{ ansible_fqdn|search("corp") }}'
 
 
   - name: Copy over 64-bit corp install
