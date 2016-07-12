@@ -11,6 +11,7 @@
     win_file_version:
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
     register: file
+    ignore_errors: yes
 
   - name: Copy over x64 corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x64\*" "C:\BitdefenderClient"'
