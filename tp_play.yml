@@ -8,31 +8,31 @@
   hosts: all
   tasks:
   - name: Check if defender is there
-    win_file_version:
+    win_stat:
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
-    register: file
-    ignore_errors: yes
+    register: fileinfo
+
 
   - name: Copy over x64 corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x64\*" "C:\BitdefenderClient"'
-    when: ansible_architecture == 'x64' and file.path != "" and ansible_domain|search('corp') == True
+    when: ansible_architecture == 'x64' and fileinfo.stat.exists != True and ansible_domain|search('corp') == True
 
   - name: Copy over x86 corp install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x86\*" "C:\BitdefenderClient"'
-    when: ansible_architecture != 'x64' and file.path != "" and ansible_domain|search('corp') == True
+    when: ansible_architecture != 'x64' and fileinfo.stat.exists != True and ansible_domain|search('corp') == True
 
   - name: Copy over x64 comm install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x86\*" "C:\BitdefenderClient"'
-    when: ansible_architecture == 'x64' and file.path != "" and ansible_domain|search('corp') == False
+    when: ansible_architecture == 'x64' and fileinfo.stat.exists != True and ansible_domain|search('corp') == False
 
   - name: Copy over x86 comm install
     raw: 'xcopy "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x64\*" "C:\BitdefenderClient"'
-    when: ansible_architecture != 'x64' and file.path != "" and ansible_domain|search('corp') == False
+    when: ansible_architecture != 'x64' and fileinfo.stat.exists != True and ansible_domain|search('corp') == False
 
   - name: Install the proper version x86
     raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
-    when: file.path != "" and ansible_architecture != 'x64'
+    when: fileinfo.stat.exists != True and ansible_architecture != 'x64'
 
   - name: Install the proper version x64
     raw: 'C:\BitdefenderClient\epskit_x64.exe /bdparams /silent'
-    when: file.path != "" and ansible_architecture == 'x64'
+    when: fileinfo.stat.exists != True and ansible_architecture == 'x64'
