@@ -1,0 +1,11 @@
+---
+
+- name: Test Small Custom Modules
+  hosts: all
+  gather_facts: False
+  tasks:
+  - name: Test Win Mod
+    simple_windows_mod:
+      source: asdf
+      destination: asdf
+      want_to_fail: False
