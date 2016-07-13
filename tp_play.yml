@@ -11,8 +11,11 @@
   - name: Copy over template
     win_template:
       src: templates/powershell_copy.j2
-      dest: 'C:\temp\'
+      dest: 'C:\temp\powershell_copy.ps1'
     when: fileinfo.stat.exists != True
+
+  - name: Run Powershell Script (Duh)
+    raw: 'powershell.exe -File C:\temp\powershell_copy.ps1'
 
   - name: Install the proper version x86
     raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
