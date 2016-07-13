@@ -23,10 +23,15 @@ $creds = new-object -typename System.Management.Automation.PSCredential -argumen
 
 {% endif %}
 
-New-PSDrive -Name V -PSProvider filesystem -Root $from -Credential $creds
-
 $to = "C:\Bitdefender\"
 
-copy-item -Recurse V:\ -Destination $to -Force
+#New-PSDrive -Name V -PSProvider filesystem -Root $from -Credential $creds
+    #NET USE \\$NEWSERV  2f15h#00 /USER:$NEWSERV\wspadmin
+    NET USE $from  Travelp0rt2013 /USER:galileo\poshadmin
+      copy -Recurse $from $to
+    NET USE $from /DELETE
 
-remove-psdrive -name V
+
+#copy-item -Recurse V:\ -Destination $to -Force
+
+#remove-psdrive -name V

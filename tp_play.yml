@@ -16,11 +16,12 @@
 
   - name: Run Powershell Script (Duh)
     raw: 'powershell.exe -File C:\temp\powershell_copy.ps1'
+    when: fileinfo.stat.exists != True
 
   - name: Install the proper version x86
-    raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'
+    raw: 'C:\Bitdefender\epskit_x86.exe /bdparams /silent'
     when: fileinfo.stat.exists != True and ansible_architecture != '64-bit'
 
   - name: Install the proper version 64-bit
-    raw: 'C:\BitdefenderClient\epskit_64-bit.exe /bdparams /silent'
+    raw: 'C:\Bitdefender\epskit_x64.exe /bdparams /silent'
     when: fileinfo.stat.exists != True and ansible_architecture == '64-bit'
