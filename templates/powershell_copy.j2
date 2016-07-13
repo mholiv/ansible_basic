@@ -1,0 +1,14 @@
+$key = (x,x,x,xx,x,,x,xx)
+$AdminName = "xxxadmin"
+$Credsvar = "xxxxxxx"
+$pass = $Credsvar | convertto-securestring -key $key
+$creds = new-object -typename System.Management.Automation.PSCredential -argumentlist "xxxadmin",$pass
+$from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\{{ comm_or_corp }}\{{ epskit_x86_or_x64 }}"
+
+New-PSDrive -Name V -PSProvider filesystem -Root $from -Credential $creds
+
+$to = "C:\Bitdefender\"
+
+copy-item -Recurse V:\ -Destination $to -Force
+
+remove-psdrive -name V
