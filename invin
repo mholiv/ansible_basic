@@ -1,0 +1,2 @@
+[windows]
+172.16.66.140 ansible_user=user ansible_password=test32 ansible_port=5986 ansible_connection=winrm ansible_winrm_server_cert_validation=ignore

@@ -1,6 +1,4 @@
 *.swp
-*test
-test*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -69,3 +67,6 @@ target/
 
 #OS X
 .DS_Store
+
+#Ansibe
+*.retry
