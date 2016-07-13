@@ -1,50 +1,18 @@
 ---
 
-#
-#Raw module Bit Defender Playbook. Writing a Bit Defender module is advised over using this.
-#
-
 - name: Install Bit Defender
   hosts: all
-  vars:
-    corp: Corporate
-    comm: Commercial
-    x64: epskit_x64
-    x86: epskit_x86
-
   tasks:
   - name: Check if defender is there
     win_stat:
       path: 'C:\Program Files\Bitdefender\Endpoint Security\epconsole.exe'
     register: fileinfo
 
-  - name: Copy over 64-bit corp install
+  - name: Copy over template
     win_template:
       src: templates/powershell_copy.j2
       dest: 'C:\temp\'
-    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
-    register: comm_or_corp = corp and epskit_x86_or_x64 = x64
-
-  - name: Copy over x86 corp install
-    win_template:
-      src: templates/powershell_copy.j2
-      dest: 'C:\temp\'
-    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == True
-    register: comm_or_corp = corp and epskit_x86_or_x64 = x86
-
-  - name: Copy over 64-bit comm install
-    win_template:
-      src: templates/powershell_copy.j2
-      dest: 'C:\temp\'
-    when: ansible_architecture == '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
-    register: comm_or_corp = comm and epskit_x86_or_x64 = x64
-
-  - name: Copy over x86 comm install
-    win_template:
-      src: templates/powershell_copy.j2
-      dest: 'C:\temp\'
-    when: ansible_architecture != '64-bit' and fileinfo.stat.exists != True and ansible_fqdn|search('corp') == False
-    register: comm_or_corp = comm and epskit_x86_or_x64 = x86
+    when: fileinfo.stat.exists != True
 
   - name: Install the proper version x86
     raw: 'C:\BitdefenderClient\epskit_x86.exe /bdparams /silent'

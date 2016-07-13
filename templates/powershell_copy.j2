@@ -3,7 +3,25 @@ $AdminName = "xxxadmin"
 $Credsvar = "xxxxxxx"
 $pass = $Credsvar | convertto-securestring -key $key
 $creds = new-object -typename System.Management.Automation.PSCredential -argumentlist "xxxadmin",$pass
-$from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\{{ comm_or_corp }}\{{ epskit_x86_or_x64 }}"
+
+{# a comment #}
+{% if ansible_architecture == '64-bit' %}
+
+    {% if ansible_fqdn|search('corp') == True %}
+        $from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x64"
+    {% else %}
+        $from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x64"
+    {% endif %}
+
+{% else %}
+
+    {% if ansible_fqdn|search('corp') == True %}
+        $from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Corporate\epskit_x86"
+    {% else %}
+        $from = "\\gnuthpmgns0010v\windows_repository\Products\Bitdefender\Commercial\epskit_x86"
+    {% endif %}
+
+{% endif %}
 
 New-PSDrive -Name V -PSProvider filesystem -Root $from -Credential $creds
 
