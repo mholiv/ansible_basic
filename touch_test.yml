@@ -1,14 +1,9 @@
 ---
-- name: configure ldap
+- name: Basic linux touch test playbook with become
   hosts: all
-  become: True
-
-  vars:
-    CA_CERTDIR: /etc/openldap/cacerts
-    HOSTNAME: myhostname
-
+  
   tasks:
   - name: Touch test
     file:
-      path: /tmp/foo.conf 
+      path: /tmp/foo.file 
       state: touch
