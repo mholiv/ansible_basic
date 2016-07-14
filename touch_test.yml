@@ -1,7 +1,7 @@
 ---
 - name: Basic linux touch test playbook with become
   hosts: all
-  
+  gather_facts: False
   tasks:
   - name: Touch test
     file:
