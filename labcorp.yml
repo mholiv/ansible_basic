@@ -1,0 +1,10 @@
+---
+- name: Bla
+  hosts: all
+  gather_facts: False
+  tasks:
+
+  - name: Labcorp nginx
+    labcorp_sample:
+      version: 3.9.2
+      state: present
