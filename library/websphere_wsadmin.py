@@ -12,21 +12,22 @@ def main():
             username = dict(required=False, type='str'),
             password = dict(required=False, type='str'),
             script = dict(required=True, type='str'),
-            wasdir = dict(required=True, type='str')
+            wasdir = dict(required=True, type='str'),
+            cluster = dict(required=True, type='str')
         )
     )
 
-    params = module.params['params']
     host = module.params['host']
     port = module.params['port']
     username = module.params['username']
     password = module.params['password']
     script = module.params['script']
     wasdir = module.params['wasdir']
+    cluster = module.params['cluster']
 
     # Run wsadmin command server
 
-    child = subprocess.Popen([wasdir+"/bin/wsadmin.sh -lang jython -conntype SOAP -host "+host+" -port "+port+" -username " + username + " -password " + password + " -f "+script+" "+params], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    child = subprocess.Popen([wasdir+"/bin/wsadmin.sh -lang jython -conntype SOAP -host %s -port %s -username %s -password %s -f %s %s "% (host, port, username, password, script, cluster)], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout_value, stderr_value = child.communicate()
     if child.returncode != 0:
         module.fail_json(msg="Failed executing wsadmin script: " + script, stdout=stdout_value, stderr=stderr_value)
