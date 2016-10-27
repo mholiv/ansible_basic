@@ -1,0 +1,9 @@
+---
+- name: Test module
+  hosts: all
+  gather_facts: False
+  tasks:
+  - name: Run our module
+    uscbp:
+      state: absent
+      location: /Users/caitlin/dev/ansible_modules/uscbp2.yml
